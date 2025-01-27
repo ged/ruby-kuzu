@@ -1,5 +1,6 @@
 # -*- ruby -*-
 
+# Namespace for Kuzu classes
 module Kuzu
 
 	# Library version
@@ -7,6 +8,5 @@ module Kuzu
 
 end # module Kuzu
 
-# Convenience alias
-RKuzu = Kuzu
+RKuzu = Kuzu # Convenience alias
 
