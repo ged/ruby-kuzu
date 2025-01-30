@@ -5,6 +5,7 @@ require 'loggability'
 require 'kuzu' unless defined?( Kuzu )
 
 
+# Main Kùzu database class
 class Kuzu::Database
 	extend Loggability
 

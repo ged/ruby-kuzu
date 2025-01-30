@@ -136,7 +136,7 @@ rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
 
 /*
  * call-seq:
- *    database.config   -> config
+ *    database.config()   -> config
  *
  * Return the Kuzu::Config that reflects the config options the database 
  * was created with.
@@ -153,7 +153,7 @@ rkuzu_database_config( VALUE self )
 
 /*
  * call-seq:
- *    database.path   -> string or nil
+ *    database.path()   -> string or nil
  *
  * Return the path the database was created with, or +nil+ if it was
  * created in memory.

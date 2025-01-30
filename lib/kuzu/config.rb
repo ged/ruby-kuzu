@@ -5,10 +5,13 @@ require 'loggability'
 require 'kuzu' unless defined?( Kuzu )
 
 
+# Kùzu system config options container class.
 class Kuzu::Config
 	extend Loggability
 
 
+	# The detail fragments that make up the #inspect output, in the order
+	# they should appear.
 	INSPECT_PARTS = [
 		"buffer_pool_size:%d",
 		"max_num_threads:%d",
@@ -19,6 +22,7 @@ class Kuzu::Config
 		"checkpoint_threshold:%d"
 	].freeze
 
+	# The printf pattern used for #inspect output
 	INSPECT_FORMAT = ' ' + INSPECT_PARTS.join( ' ' )
 
 
@@ -26,7 +30,9 @@ class Kuzu::Config
 	log_to :kuzu
 
 
-	### Return a default Config object with the specified +options+ overridden.
+	### Return a default Config object with the specified +options+ overridden. If
+	### +source_options+ is a Kuzu::Config, the returned object will be a clone of
+	### it with the +options+ applied.
 	def self::from_options( source_options=nil, **options )
 		config = source_options.dup || new()
 
@@ -44,7 +50,7 @@ class Kuzu::Config
 	end
 
 
-	### Return a human-readable represetnation of the object suitable for debugging.
+	### Return a human-readable representation of the object suitable for debugging.
 	def inspect
 		details = INSPECT_FORMAT % [
 			self.buffer_pool_size,

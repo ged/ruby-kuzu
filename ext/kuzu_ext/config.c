@@ -39,6 +39,13 @@ rkuzu_check_config( VALUE config )
 
 
 
+/*
+ * call-seq:
+ *    new()   -> config
+ *
+ * Create a Kuzu::Config with default values.
+ *
+ */
 static VALUE
 rkuzu_config_initialize( VALUE self )
 {
@@ -69,7 +76,7 @@ rkuzu_config_initialize( VALUE self )
 
 /*
  * call-seq:
- *   config.buffer_pool_size  -> integer
+ *   config.buffer_pool_size()  -> integer
  *
  * Return the buffer_pool_size config value.
  */
@@ -83,7 +90,7 @@ rkuzu_config_buffer_pool_size( VALUE self )
 
 /*
  * call-seq:
- *   config.max_num_threads  -> integer
+ *   config.max_num_threads()  -> integer
  *
  * Return the max_num_threads config value.
  */
@@ -97,7 +104,7 @@ rkuzu_config_max_num_threads( VALUE self )
 
 /*
  * call-seq:
- *   config.enable_compression  -> true or false
+ *   config.enable_compression()  -> true or false
  *
  * Return the enable_compression config value.
  */
@@ -111,7 +118,7 @@ rkuzu_config_enable_compression( VALUE self )
 
 /*
  * call-seq:
- *   config.read_only  -> true or false
+ *   config.read_only()  -> true or false
  *
  * Return the read_only config value.
  */
@@ -125,7 +132,7 @@ rkuzu_config_read_only( VALUE self )
 
 /*
  * call-seq:
- *   config.max_db_size  -> integer
+ *   config.max_db_size()  -> integer
  *
  * Return the max_db_size config value.
  */
@@ -139,7 +146,7 @@ rkuzu_config_max_db_size( VALUE self )
 
 /*
  * call-seq:
- *   config.auto_checkpoint  -> true or false
+ *   config.auto_checkpoint()  -> true or false
  *
  * Return the auto_checkpoint config value.
  */
@@ -153,7 +160,7 @@ rkuzu_config_auto_checkpoint( VALUE self )
 
 /*
  * call-seq:
- *   config.checkpoint_threshold  -> integer
+ *   config.checkpoint_threshold()  -> integer
  *
  * Return the checkpoint_threshold config value.
  */
@@ -278,9 +285,16 @@ rkuzu_config_checkpoint_threshold_eq( VALUE self, VALUE value )
 
 
 
+/*
+ * Document-class: Kuzu::Config
+ */
 void
 rkuzu_init_config( void )
 {
+#ifdef FOR_RDOC
+	rkuzu_mKuzu = rb_define_module( "Kuzu" );
+#endif
+
 	rkuzu_cKuzuConfig = rb_define_class_under( rkuzu_mKuzu, "Config", rb_cObject );
 
 	rb_define_alloc_func( rkuzu_cKuzuConfig, rkuzu_config_s_allocate );
