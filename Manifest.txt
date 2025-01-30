@@ -1,6 +1,14 @@
 History.md
 LICENSE.txt
 README.md
+ext/kuzu_ext/config.c
+ext/kuzu_ext/database.c
+ext/kuzu_ext/kuzu_ext.c
+ext/kuzu_ext/kuzu_ext.h
 lib/kuzu.rb
+lib/kuzu/config.rb
+lib/kuzu/database.rb
+spec/kuzu/config_spec.rb
+spec/kuzu/database_spec.rb
 spec/kuzu_spec.rb
 spec/spec_helper.rb

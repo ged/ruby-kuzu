@@ -1,4 +1,6 @@
 \.lock$
 docs/
 pkg/
-
+tmp/
+spec/\.status
+\.bundle$
