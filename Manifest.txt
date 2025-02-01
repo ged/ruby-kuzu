@@ -2,6 +2,7 @@ History.md
 LICENSE.txt
 README.md
 ext/kuzu_ext/config.c
+ext/kuzu_ext/connection.c
 ext/kuzu_ext/database.c
 ext/kuzu_ext/kuzu_ext.c
 ext/kuzu_ext/kuzu_ext.h

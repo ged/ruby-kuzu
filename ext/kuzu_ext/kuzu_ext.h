@@ -58,6 +58,8 @@ extern VALUE rkuzu_cKuzuConnection;
 extern VALUE rkuzu_cKuzuStatement;
 extern VALUE rkuzu_cKuzuResult;
 
+extern VALUE rkuzu_eError;
+extern VALUE rkuzu_eConnectionError;
 
 
 /* -------------------------------------------------------
@@ -72,6 +74,7 @@ extern void rkuzu_init_statement _(( void ));
 extern void rkuzu_init_result _(( void ));
 
 extern kuzu_system_config *rkuzu_check_config _(( VALUE ));
+extern kuzu_database *rkuzu_check_database _(( VALUE ));
 
 #endif /* end of include guard: KUZU_EXT_H_AA9CC4A5 */
 

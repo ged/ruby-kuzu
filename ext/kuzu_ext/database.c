@@ -32,6 +32,12 @@ static const rb_data_type_t rkuzu_database_type = {
 
 #define check_database(self) ((rkuzu_database*)rb_check_typeddata((self), &rkuzu_database_type))
 
+rkuzu_database *
+rkuzu_check_database( VALUE obj )
+{
+	return check_database( obj );
+}
+
 
 /*
  * Struct allocation/init function.

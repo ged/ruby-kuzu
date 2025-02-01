@@ -20,6 +20,19 @@ class Kuzu::Database
 	end
 
 
+	### Returns +true+ if this database will automatically checkpoint when the size of
+	### the WAL file exceeds the `checkpoint_threshold`.
+	def auto_checkpointing?
+		return self.config.auto_checkpoint
+	end
+
+
+	### Returns +true+ if this database uses compression for data on disk.
+	def compression_enabled?
+		return self.config.enable_compression
+	end
+
+
 	### Return a string representation of the receiver suitable for debugging.
 	def inspect
 		details = " path:%p read-only:%p" % [

@@ -13,6 +13,9 @@
 
 VALUE rkuzu_mKuzu;
 
+VALUE rkuzu_eError;
+VALUE rkuzu_eConnectionError;
+
 
 /* --------------------------------------------------------------
  * Logging Functions
@@ -125,9 +128,12 @@ Init_kuzu_ext()
 	rb_define_singleton_method( rkuzu_mKuzu, "kuzu_version", rkuzu_s_kuzu_version, 0 );
 	rb_define_singleton_method( rkuzu_mKuzu, "storage_version", rkuzu_s_storage_version, 0 );
 
+	rkuzu_eError = rb_define_class_under( rkuzu_mKuzu, "Error", rb_eRuntimeError );
+	rkuzu_eConnectError = rb_define_class_under( rkuzu_mKuzu, "ConnectError", rkuzu_eError );
+
 	rkuzu_init_database();
 	rkuzu_init_config();
-	// rkuzu_init_connection();
+	rkuzu_init_connection();
 	// rkuzu_init_statement();
 	// rkuzu_init_result();
 }
