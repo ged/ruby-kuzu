@@ -1,5 +1,6 @@
 # -*- ruby -*-
 
+require 'pathname'
 require 'simplecov' if ENV['COVERAGE'] || ENV['CI']
 
 require 'tmpdir'
