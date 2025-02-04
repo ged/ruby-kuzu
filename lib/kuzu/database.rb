@@ -14,6 +14,12 @@ class Kuzu::Database
 	log_to :kuzu
 
 
+	### Return a connection to this database.
+	def connect
+		return Kuzu::Connection.new( self )
+	end
+
+
 	### Return +true+ if this database was created in read-only mode.
 	def read_only?
 		return self.config.read_only

@@ -42,6 +42,14 @@ void rkuzu_log( const char *, const char *, va_dcl );
  * Structs
  * -------------------------------------------------------------- */
 
+typedef struct {
+	kuzu_database db;
+	VALUE connections;
+	VALUE path;
+	VALUE config;
+} rkuzu_database;
+
+
 
 
 /* -------------------------------------------------------
@@ -74,7 +82,7 @@ extern void rkuzu_init_statement _(( void ));
 extern void rkuzu_init_result _(( void ));
 
 extern kuzu_system_config *rkuzu_check_config _(( VALUE ));
-extern kuzu_database *rkuzu_check_database _(( VALUE ));
+extern rkuzu_database *rkuzu_check_database _(( VALUE ));
 
 #endif /* end of include guard: KUZU_EXT_H_AA9CC4A5 */
 

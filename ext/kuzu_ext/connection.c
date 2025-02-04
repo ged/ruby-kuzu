@@ -17,7 +17,7 @@ static const rb_data_type_t rkuzu_connection_type = {
 };
 
 
-#define check_connection(self) ((kuzu_system_connection*)rb_check_typeddata((self), &rkuzu_connection_type))
+#define check_connection(self) ((kuzu_connection*)rb_check_typeddata((self), &rkuzu_connection_type))
 
 
 
@@ -42,19 +42,20 @@ rkuzu_connection_s_allocate( VALUE klass )
 static VALUE
 rkuzu_connection_initialize( VALUE self, VALUE database )
 {
-	kuzu_system_connection *ptr = check_connection( self );
+	kuzu_connection *ptr = check_connection( self );
 
 	if ( !ptr ) {
-		kuzu_database *db = rkuzu_check_database( database );
+		rkuzu_database *dbobject = rkuzu_check_database( database );
 		ptr = ALLOC( kuzu_connection );
 
-		if ( kuzu_connection_init(*db, ptr) == KuzuError ) {
-			rb_raise( rkuzu_eConnectError, "Failed to connect!" );
+		if ( kuzu_connection_init(&dbobject->db, ptr) == KuzuError ) {
+			rb_raise( rkuzu_eConnectionError, "Failed to connect!" );
 			xfree( ptr );
 			ptr = NULL;
 		}
 
 		DATA_PTR( self ) = ptr;
+		rb_ary_push( dbobject->connections, self );
 	} else {
 		rb_raise( rb_eRuntimeError, "cannot reinit connection" );
 	}
@@ -80,7 +81,7 @@ rkuzu_init_connection( void )
 
 	rb_define_alloc_func( rkuzu_cKuzuConnection, rkuzu_connection_s_allocate );
 
-	rb_define_method( rkuzu_cKuzuConnection, "initialize", rkuzu_connection_initialize, 0 );
+	rb_define_method( rkuzu_cKuzuConnection, "initialize", rkuzu_connection_initialize, 1 );
 
 }
 

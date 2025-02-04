@@ -8,14 +8,6 @@
 
 VALUE rkuzu_cKuzuDatabase;
 
-
-typedef struct {
-	kuzu_database db;
-	VALUE connections;
-	VALUE path;
-	VALUE config;
-} rkuzu_database;
-
 static void rkuzu_database_free( void * );
 static void rkuzu_database_mark( void * );
 
@@ -144,7 +136,7 @@ rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
  * call-seq:
  *    database.config()   -> config
  *
- * Return the Kuzu::Config that reflects the config options the database 
+ * Return the Kuzu::Config that reflects the config options the database
  * was created with.
  *
  */
@@ -178,6 +170,15 @@ rkuzu_database_path( VALUE self )
 }
 
 
+static VALUE
+rkuzu_database_connections( VALUE self )
+{
+	rkuzu_database *ptr = check_database( self );
+	VALUE connections = rb_obj_dup( ptr->connections );
+
+	return rb_obj_freeze( connections );
+}
+
 
 void
 rkuzu_init_database( void )
@@ -190,5 +191,7 @@ rkuzu_init_database( void )
 
 	rb_define_method( rkuzu_cKuzuDatabase, "config", rkuzu_database_config, 0 );
 	rb_define_method( rkuzu_cKuzuDatabase, "path", rkuzu_database_path, 0 );
+
+	rb_define_method( rkuzu_cKuzuDatabase, "connections", rkuzu_database_connections, 0 );
 }
 

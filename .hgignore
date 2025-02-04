@@ -4,3 +4,5 @@ pkg/
 tmp/
 spec/\.status
 \.bundle$
+\.so$
+

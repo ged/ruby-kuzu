@@ -40,5 +40,16 @@ RSpec.describe( Kuzu::Database ) do
 		expect( instance ).not_to be_compression_enabled
 	end
 
+
+	it "can create a connection to itself" do
+		db_path = spec_tmpdir + 'spec_db'
+		instance = described_class.new( db_path.to_s, enable_compression: false )
+
+		result = instance.connect
+
+		expect( result ).to be_a( Kuzu::Connection )
+		expect( instance.connections ).to include( result )
+	end
+
 end
 

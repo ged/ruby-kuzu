@@ -86,7 +86,7 @@ rkuzu_log( const char *level, const char *fmt, va_dcl )
  *
  */
 static VALUE
-rkuzu_s_kuzu_version()
+rkuzu_s_kuzu_version( VALUE _ )
 {
 	const char *version = kuzu_get_version();
 
@@ -102,7 +102,7 @@ rkuzu_s_kuzu_version()
  *
  */
 static VALUE
-rkuzu_s_storage_version()
+rkuzu_s_storage_version( VALUE _ )
 {
 	const unsigned long long version = kuzu_get_storage_version();
 
@@ -114,7 +114,7 @@ rkuzu_s_storage_version()
  * Kuzu extension init function
  */
 void
-Init_kuzu_ext()
+Init_kuzu_ext( void )
 {
 	rb_require( "kuzu" );
 
@@ -129,7 +129,7 @@ Init_kuzu_ext()
 	rb_define_singleton_method( rkuzu_mKuzu, "storage_version", rkuzu_s_storage_version, 0 );
 
 	rkuzu_eError = rb_define_class_under( rkuzu_mKuzu, "Error", rb_eRuntimeError );
-	rkuzu_eConnectError = rb_define_class_under( rkuzu_mKuzu, "ConnectError", rkuzu_eError );
+	rkuzu_eConnectionError = rb_define_class_under( rkuzu_mKuzu, "ConnectError", rkuzu_eError );
 
 	rkuzu_init_database();
 	rkuzu_init_config();
