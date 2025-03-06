@@ -15,7 +15,9 @@ VALUE rkuzu_mKuzu;
 
 VALUE rkuzu_eError;
 VALUE rkuzu_eConnectionError;
+VALUE rkuzu_eQueryError;
 
+VALUE rkuzu_rb_cDate;
 
 /* --------------------------------------------------------------
  * Logging Functions
@@ -116,6 +118,9 @@ rkuzu_s_storage_version( VALUE _ )
 void
 Init_kuzu_ext( void )
 {
+	rb_require( "date" );
+	rkuzu_rb_cDate = rb_const_get( rb_cObject, rb_intern("Date") );
+
 	rb_require( "kuzu" );
 
 	/*
@@ -130,11 +135,12 @@ Init_kuzu_ext( void )
 
 	rkuzu_eError = rb_define_class_under( rkuzu_mKuzu, "Error", rb_eRuntimeError );
 	rkuzu_eConnectionError = rb_define_class_under( rkuzu_mKuzu, "ConnectError", rkuzu_eError );
+	rkuzu_eQueryError = rb_define_class_under( rkuzu_mKuzu, "QueryError", rkuzu_eError );
 
 	rkuzu_init_database();
 	rkuzu_init_config();
 	rkuzu_init_connection();
 	// rkuzu_init_statement();
-	// rkuzu_init_result();
+	rkuzu_init_result();
+	rkuzu_init_query_summary();
 }
-

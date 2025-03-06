@@ -18,8 +18,11 @@ module Kuzu
 	log_as :kuzu
 
 
-	require 'kuzu/database'
 	require 'kuzu/config'
+	require 'kuzu/connection'
+	require 'kuzu/database'
+	require 'kuzu/result'
+	require 'kuzu/query_summary'
 
 
 	### Create and return a Kuzu::Database. If +path+ is +nil+, an empty string, or
@@ -54,7 +57,29 @@ module Kuzu
 		return Kuzu::Database.new( path.to_s, **config )
 	end
 
+
+	### Return a Time object from the given +milliseconds+ epoch time.
+	def self::timestamp_from_timestamp_ms( milliseconds )
+		seconds, subsec = milliseconds.divmod( 1_000 )
+		return Time.at( seconds, subsec, :millisecond )
+	end
+
+
+	### Return a Time object from the given +microseconds+ epoch time and
+	### optional timezone offset in seconds via the +zone+ argument.
+	def self::timestamp_from_timestamp_us( microseconds, zone=nil )
+		seconds, subsec = microseconds.divmod( 1_000_000 )
+		return Time.at( seconds, subsec, :microsecond, in: zone )
+	end
+
+
+	### Return a Time object from the given +nanoseconds+ epoch time.
+	def self::timestamp_from_timestamp_ns( nanoseconds )
+		seconds, subsec = nanoseconds.divmod( 1_000_000_000 )
+		return Time.at( seconds, subsec, :nanosecond )
+	end
+
 end # module Kuzu
 
-RKuzu = Kuzu # Convenience alias
-
+# Fancy alias
+Kùzu = Kuzu

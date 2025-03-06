@@ -32,7 +32,7 @@ rkuzu_config_s_allocate( VALUE klass )
 
 
 kuzu_system_config *
-rkuzu_check_config( VALUE obj )
+rkuzu_get_config( VALUE obj )
 {
 	return check_config( obj );
 }

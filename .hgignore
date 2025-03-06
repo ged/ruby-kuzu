@@ -5,4 +5,7 @@ tmp/
 spec/\.status
 \.bundle$
 \.so$
+\.clang*
+\.ruby-lsp/
+\.zed/
 

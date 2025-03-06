@@ -25,7 +25,7 @@ static const rb_data_type_t rkuzu_database_type = {
 #define check_database(self) ((rkuzu_database*)rb_check_typeddata((self), &rkuzu_database_type))
 
 rkuzu_database *
-rkuzu_check_database( VALUE obj )
+rkuzu_get_database( VALUE obj )
 {
 	return check_database( obj );
 }
@@ -112,7 +112,7 @@ rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
 		config_argv[0] = options;
 		config = rb_funcallv_public_kw( rkuzu_cKuzuConfig, rb_intern("from_options"), 1,
 			config_argv, RB_PASS_KEYWORDS );
-		sysconfig = rkuzu_check_config( config );
+		sysconfig = rkuzu_get_config( config );
 
 		const char *database_path = StringValueCStr( path );
 		DATA_PTR( self ) = ptr = rkuzu_database_alloc();

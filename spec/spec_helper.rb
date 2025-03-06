@@ -25,6 +25,7 @@ module Kuzu::SpecHelpers
 	TEST_DATA_DIR = Pathname( 'spec/data' ).expand_path
 
 
+
 	### Inclusion callback -- install some hooks
 	def self::included( context )
 
@@ -50,6 +51,19 @@ module Kuzu::SpecHelpers
 	### Return a Pathname pointing to a temporary file.
 	def tmpfile_pathname( filetype='spec' )
 		Pathname(Dir::Tmpname.create(['kuzu-', '-test-' + filetype]) {})
+	end
+
+
+	### Return a Pathname containing the path to the test data with the given +name+.
+	def test_data_pathname( name )
+		return TEST_DATA_DIR / name
+	end
+
+
+	### Load and return the contents of the test data with the given +name+.
+	def load_test_data( name )
+		file = test_data_pathname( name )
+		return file.read
 	end
 
 end # module Kuzu::SpecHelpers
