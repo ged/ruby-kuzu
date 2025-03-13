@@ -7,11 +7,18 @@ require 'kuzu' unless defined?( Kuzu )
 
 # Kùzu query result class
 class Kuzu::Result
-	extend Loggability
+	extend Loggability,
+		Enumerable
 
 
 	# Loggability API -- log to Kuzu's logger
 	log_to :kuzu
+
+
+	### Fetch the names of the columns in the result as an Array of Strings.
+	def	column_names
+		return @column_names ||= self.get_column_names
+	end
 
 
 	### Return a Kuzu::QuerySummary for the query that generated the Result.
@@ -20,12 +27,46 @@ class Kuzu::Result
 	end
 
 
-	
+	### Get the next tuple of the result as a Hash.
+	def next
+		pairs = self.column_names.zip( self.get_next_values )
+		return Hash[ pairs ]
+	end
+
+
+	### Iterate over each tuple of the result, yielding it to the +block+. If no
+	### +block+ is given, return an Enumerator that will yield them instead.
+	def	each( &block )
+		enum = self.tuple_enum
+		return enum.each( &block ) if block
+		return enum
+	end
+
+
+	### Return the next result set after this one as a Kuzu::Result, or `nil`if
+	### there is no next set.
+	def next_set
+		return nil unless self.has_next_set?
+		return self.class.from_next_set( self )
+	end
+
+
+	### Iterate over each result set in the results, yielding it to the block. If
+	### no +block+ is given, return an Enumerator tht will yield each set as its own
+	### Result.
+	def each_set( &block )
+		enum = self.next_set_enum
+		return enum.each( &block ) if block
+		return enum
+	end
+
 
 	### Return a string representation of the receiver suitable for debugging.
 	def inspect
-		details = " success: %p" % [
+		details = " success: %p (%d tuples of %d columns)" % [
 			self.success?,
+			self.num_tuples,
+			self.num_columns,
 		]
 
 		default = super
@@ -36,10 +77,27 @@ class Kuzu::Result
 	#########
 	protected
 	#########
-	
-	### Return an Enumerator that yields result tuples as Hashes. 
-	def each_enum
-		
+
+	### Return an Enumerator that yields result tuples as Hashes.
+	def tuple_enum
+		return Enumerator.new do |yielder|
+			self.reset_iterator
+			while self.has_next?
+				tuple = self.next
+				yielder.yield( tuple )
+			end
+		end
+	end
+
+
+	def next_set_enum
+		result = self
+		return Enumerator.new do |yielder|
+			while result
+				yielder.yield( result )
+				result = result.next_set
+			end
+		end
 	end
 
 end # class Kuzu::Result

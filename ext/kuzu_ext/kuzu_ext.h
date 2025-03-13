@@ -58,7 +58,7 @@ extern VALUE rkuzu_mKuzu;
 extern VALUE rkuzu_cKuzuDatabase;
 extern VALUE rkuzu_cKuzuConfig;
 extern VALUE rkuzu_cKuzuConnection;
-extern VALUE rkuzu_cKuzuStatement;
+extern VALUE rkuzu_cKuzuPreparedStatement;
 extern VALUE rkuzu_cKuzuResult;
 extern VALUE rkuzu_cKuzuQuerySummary;
 
@@ -76,13 +76,17 @@ extern void Init_kuzu_ext _ ((void));
 extern void rkuzu_init_database _ ((void));
 extern void rkuzu_init_config _ ((void));
 extern void rkuzu_init_connection _ ((void));
-extern void rkuzu_init_statement _ ((void));
+extern void rkuzu_init_prepared_statement _ ((void));
 extern void rkuzu_init_result _ ((void));
 extern void rkuzu_init_query_summary _ ((void));
 
 extern rkuzu_database *rkuzu_get_database _ ((VALUE));
 extern kuzu_system_config *rkuzu_get_config _ ((VALUE));
 extern kuzu_connection *rkuzu_get_connection _ ((VALUE));
+extern kuzu_prepared_statement *rkuzu_get_prepared_statement _ ((VALUE));
 extern kuzu_query_result *rkuzu_get_result _ ((VALUE));
+
+extern VALUE rkuzu_convert_kuzu_value_to_ruby _ ((kuzu_data_type_id, kuzu_value *));
+extern VALUE rkuzu_convert_logical_kuzu_value_to_ruby _ ((kuzu_logical_type *, kuzu_value *));
 
 #endif /* end of include guard: KUZU_EXT_H_AA9CC4A5 */

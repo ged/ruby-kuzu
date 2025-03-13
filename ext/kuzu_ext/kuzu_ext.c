@@ -140,7 +140,7 @@ Init_kuzu_ext( void )
 	rkuzu_init_database();
 	rkuzu_init_config();
 	rkuzu_init_connection();
-	// rkuzu_init_statement();
+	rkuzu_init_prepared_statement();
 	rkuzu_init_result();
 	rkuzu_init_query_summary();
 }

@@ -21,8 +21,9 @@ module Kuzu
 	require 'kuzu/config'
 	require 'kuzu/connection'
 	require 'kuzu/database'
-	require 'kuzu/result'
+	require 'kuzu/prepared_statement'
 	require 'kuzu/query_summary'
+	require 'kuzu/result'
 
 
 	### Create and return a Kuzu::Database. If +path+ is +nil+, an empty string, or

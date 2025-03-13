@@ -52,7 +52,7 @@ RSpec.describe( Kuzu::Result ) do
 	end
 
 
-	it "knows how many columns are in each tuple" do
+	it "can iterate over result tuples" do
 		setup_demo_db()
 
 		result = described_class.from_query( connection, <<~END_OF_QUERY )
@@ -63,10 +63,32 @@ RSpec.describe( Kuzu::Result ) do
 		expect( result ).to be_a( described_class )
 		expect( result ).to be_success
 		expect( result.num_columns ).to eq( 3 )
+		expect( result.column_names ).to eq([ "a.name", "b.name", "f.since" ])
+		expect( result.each.to_a ).to eq([
+			{ "a.name" => "Adam", "b.name" => "Karissa", "f.since" => 2020 },
+			{ "a.name" => "Adam", "b.name" => "Zhang", "f.since" => 2020 },
+			{ "a.name" => "Karissa", "b.name" => "Zhang", "f.since" => 2021 },
+			{ "a.name" => "Zhang", "b.name" => "Noura", "f.since" => 2022 }
+		])
 	end
 
 
-	
+	it "can iterate over result sets" do
+		result = described_class.from_query( connection, <<~END_QUERY )
+			return 1;
+			return 2;
+			return 3;
+		END_QUERY
+
+		rval = result.each_set.flat_map do |subset|
+			subset.each.to_a
+		end
+
+		expect( rval ).to eq([
+			{ "1" => 1 },
+			{ "2" => 2 },
+			{ "3" => 3 },
+		])
+	end
 
 end
-

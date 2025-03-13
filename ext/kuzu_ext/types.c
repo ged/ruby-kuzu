@@ -258,9 +258,9 @@ rkuzu_convert_string( kuzu_value *value )
 
 
 VALUE
-rkuzu_convert_type( kuzu_data_type_id type, kuzu_value *value )
+rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 {
-	switch( type ) {
+	switch( type_id ) {
 		case KUZU_BOOL: return rkuzu_convert_bool( value );
 		case KUZU_INT64: return rkuzu_convert_int64( value );
 		case KUZU_INT32: return rkuzu_convert_int32( value );
@@ -297,6 +297,14 @@ rkuzu_convert_type( kuzu_data_type_id type, kuzu_value *value )
 
 		// Fallthrough
 		default:
-			rb_raise( rb_eTypeError, "Unhandled Kuzu data type: %d", type );
+			rb_raise( rb_eTypeError, "Unhandled Kuzu data type: %d", type_id );
 	}
+}
+
+
+VALUE
+rkuzu_convert_logical_kuzu_value_to_ruby( kuzu_logical_type *data_type, kuzu_value *value )
+{
+	kuzu_data_type_id type_id = kuzu_data_type_get_id( data_type );
+	return rkuzu_convert_kuzu_value_to_ruby( type_id, value );
 }

@@ -14,9 +14,17 @@ class Kuzu::Connection
 	log_to :kuzu
 
 
-	### Executes the given +statement+ and returns the result. 
-	def query( statement )
-		return Kuzu::Result.from_query( self, statement )
+	### Executes the given +query_string+ and returns the result.
+	def query( query_string )
+		return Kuzu::Result.from_query( self, query_string )
+	end
+
+
+	### Executes the given +statement+ (a Kuzu::PreparedStatement) after binding
+	### the given +bound_variables+ to it.
+	def execute( statement, **bound_variables )
+		statement.bind( **bound_variables )
+		return Kuzu::Result.from_prepared_statement( statement )
 	end
 
 
