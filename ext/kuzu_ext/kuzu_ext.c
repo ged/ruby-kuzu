@@ -29,7 +29,7 @@ VALUE rkuzu_rb_cOstruct;
  * Log a message to the given +context+ object's logger.
  */
 void
-#ifdef HAVE_STDARG_PROTOTYPES
+#if HAVE_STDARG_PROTOTYPES
 rkuzu_log_obj( VALUE context, const char *level, const char *fmt, ... )
 #else
 rkuzu_log_obj( VALUE context, const char *level, const char *fmt, va_dcl )
@@ -55,7 +55,7 @@ rkuzu_log_obj( VALUE context, const char *level, const char *fmt, va_dcl )
  * Log a message to the global logger.
  */
 void
-#ifdef HAVE_STDARG_PROTOTYPES
+#if HAVE_STDARG_PROTOTYPES
 rkuzu_log( const char *level, const char *fmt, ... )
 #else
 rkuzu_log( const char *level, const char *fmt, va_dcl )

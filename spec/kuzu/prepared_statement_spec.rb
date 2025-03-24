@@ -72,4 +72,21 @@ RSpec.describe( Kuzu::PreparedStatement ) do
 		expect( result.num_tuples ).to eq( 2 )
 	end
 
+
+	it "can be reused" do
+		statement = described_class.new( connection, <<~END_OF_QUERY )
+		MATCH (u:User)
+		WHERE u.age >= $min_age and u.age <= $max_age
+		RETURN u.name
+		END_OF_QUERY
+
+		result = statement.execute( min_age: 40, max_age: 50 )
+		expect( result ).to be_success
+		expect( result.num_tuples ).to eq( 2 )
+
+		result = statement.execute( min_age: 5, max_age: 90 )
+		expect( result ).to be_success
+		expect( result.num_tuples ).to eq( 4 )
+	end
+
 end

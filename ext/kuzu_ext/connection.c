@@ -20,7 +20,7 @@ static const rb_data_type_t rkuzu_connection_type = {
 };
 
 
-#define check_connection(self) ((kuzu_connection*)rb_check_typeddata((self), &rkuzu_connection_type))
+#define check_connection(self) ((kuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
 
 
 kuzu_connection *
