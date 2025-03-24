@@ -8,10 +8,13 @@
 
 VALUE rkuzu_cKuzuConnection;
 
+static void rkuzu_connection_free( void * );
 
 static const rb_data_type_t rkuzu_connection_type = {
 	.wrap_struct_name = "Kuzu::Connection",
-	.function = {},
+	.function = {
+		.dfree = rkuzu_connection_free,
+	},
 	.data = NULL,
 	.flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
@@ -24,6 +27,20 @@ kuzu_connection *
 rkuzu_get_connection( VALUE conn_obj )
 {
 	return check_connection( conn_obj );
+}
+
+
+static void
+rkuzu_connection_free( void *ptr )
+{
+	kuzu_connection *conn = (kuzu_connection *)ptr;
+
+	if ( ptr ) {
+		fprintf( stderr, ">>> freeing connection %p\n", ptr );
+		kuzu_connection_destroy( conn );
+		xfree( ptr );
+		ptr = NULL;
+	}
 }
 
 
@@ -60,6 +77,7 @@ rkuzu_connection_initialize( VALUE self, VALUE database )
 			rb_raise( rkuzu_eConnectionError, "Failed to connect!" );
 		}
 
+		fprintf( stderr, ">>> allocated connection %p\n", ptr );
 		DATA_PTR( self ) = ptr;
 		rb_ary_push( dbobject->connections, self );
 	} else {
@@ -76,7 +94,7 @@ rkuzu_connection_initialize( VALUE self, VALUE database )
  * call-seq:
  *    connection.max_num_threads_for_exec   -> integer
  *
- * Returns the maximum number of threads of the connection to use for 
+ * Returns the maximum number of threads of the connection to use for
  * executing queries.
  *
  */
@@ -98,7 +116,7 @@ rkuzu_connection_max_num_threads_for_exec( VALUE self )
  * call-seq:
  *    connection.max_num_threads_for_exec = integer
  *
- * Sets the maximum number of threads of the connection to use for 
+ * Sets the maximum number of threads of the connection to use for
  * executing queries.
  *
  */
@@ -162,4 +180,3 @@ rkuzu_init_connection( void )
 	rb_define_method( rkuzu_cKuzuConnection, "query_timeout=", rkuzu_connection_query_timeout_eq, 1 );
 
 }
-

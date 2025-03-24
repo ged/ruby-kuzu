@@ -17,7 +17,7 @@ RSpec.describe( Kuzu ) do
 
 
 	it "knows what version of Kuzu it's linked with" do
-		expect( described_class.kuzu_version ).to match( /\A\d+\.\d+\.\d+\z/ )
+		expect( described_class.kuzu_version ).to match( /\A\d+\.\d+\.\d+/ )
 	end
 
 

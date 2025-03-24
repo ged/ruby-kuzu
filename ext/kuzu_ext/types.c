@@ -257,6 +257,86 @@ rkuzu_convert_string( kuzu_value *value )
 }
 
 
+static VALUE
+rkuzu_convert_interval( kuzu_value *value )
+{
+	kuzu_interval_t interval;
+	double interval_seconds = 0.0;
+	VALUE rval;
+
+	CONVERT_CHECK( KUZU_INTERVAL, kuzu_value_get_interval(value, &interval) );
+	assert( kuzu_interval_to_difftime(interval, &interval_seconds) == KuzuSuccess );
+
+	rval = rb_float_new( interval_seconds );
+
+	return rval;
+}
+
+
+static VALUE
+rkuzu_convert_blob( kuzu_value *value )
+{
+	uint8_t *raw_blob;
+	VALUE rval;
+
+	CONVERT_CHECK( KUZU_BLOB, kuzu_value_get_blob(value, &raw_blob) );
+
+	rval = rb_enc_str_new( (char *)raw_blob, strnlen((char *)raw_blob, CHAR_MAX), rb_ascii8bit_encoding() );
+
+	return rval;
+}
+
+
+static VALUE
+rkuzu_convert_list( kuzu_value *value )
+{
+	uint64_t count = 0;
+	kuzu_value item_value;
+	kuzu_logical_type item_type;
+	VALUE item;
+	VALUE rval = rb_ary_new();
+
+	assert( kuzu_value_get_list_size(value, &count) == KuzuSuccess );
+
+	for( uint64_t i =  0 ; i < count ; i++ ) {
+		kuzu_value_get_list_element( value, i, &item_value );
+		kuzu_value_get_data_type( &item_value, &item_type );
+		item = rkuzu_convert_logical_kuzu_value_to_ruby( &item_type, &item_value );
+
+		rb_ary_push( rval, item );
+	}
+
+	return rval;
+}
+
+
+static VALUE
+rkuzu_convert_struct( kuzu_value *value )
+{
+	uint64_t count = 0;
+	char *item_name;
+	kuzu_value item_value;
+	kuzu_logical_type item_type;
+	VALUE item, item_sym;
+	VALUE rval = rb_class_new_instance( 0, 0, rkuzu_rb_cOstruct );
+
+	assert( kuzu_value_get_struct_num_fields(value, &count) == KuzuSuccess );
+
+	for( uint64_t i =  0 ; i < count ; i++ ) {
+		kuzu_value_get_struct_field_name( value, i, &item_name );
+		kuzu_value_get_struct_field_value( value, i, &item_value );
+		kuzu_value_get_data_type( &item_value, &item_type );
+		item = rkuzu_convert_logical_kuzu_value_to_ruby( &item_type, &item_value );
+		item_sym = rb_check_symbol_cstr( item_name, strnlen(item_name, CHAR_MAX),
+			rb_usascii_encoding() );
+
+		rb_funcall( rval, rb_intern("[]="), 2, item_sym, item );
+	}
+
+	return rval;
+}
+
+
 VALUE
 rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 {
@@ -283,16 +363,16 @@ rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 
 		case KUZU_STRING: return rkuzu_convert_string( value );
 
-		case KUZU_INTERVAL:
-		case KUZU_BLOB:
-		case KUZU_LIST:
-		case KUZU_ARRAY:
-		case KUZU_STRUCT:
+		case KUZU_INTERVAL: return rkuzu_convert_interval( value );
+		case KUZU_BLOB: return rkuzu_convert_blob( value );
+		case KUZU_LIST: return rkuzu_convert_list( value );
+		case KUZU_STRUCT: return rkuzu_convert_struct( value );
 		case KUZU_MAP:
 		case KUZU_UNION:
 		case KUZU_POINTER:
 		case KUZU_UUID:
 
+		case KUZU_ARRAY:
 		case KUZU_INTERNAL_ID:
 
 		// Fallthrough

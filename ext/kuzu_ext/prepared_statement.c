@@ -44,6 +44,8 @@ rkuzu_prepared_statement_free( void *ptr )
 	kuzu_prepared_statement *prepared_statement = (kuzu_prepared_statement *)ptr;
 
 	if ( ptr ) {
+		fprintf( stderr, ">>> freeing prepared statement %p\n", ptr );
+
 		kuzu_prepared_statement_destroy( prepared_statement );
 		xfree( ptr );
 	}
@@ -85,11 +87,12 @@ rkuzu_prepared_statement_initialize( VALUE self, VALUE connection, VALUE query )
 			rb_raise( rkuzu_eQueryError, "%s", errmsg );
 		}
 
+		fprintf( stderr, ">>> allocated prepared statement %p\n", stmt );
 		DATA_PTR( self ) = stmt;
 		rb_ivar_set( self, CONNECTION_IVAR, connection );
 
 	} else {
-		rb_raise( rb_eRuntimeError, "cannot reinit connection" );
+		rb_raise( rb_eRuntimeError, "cannot reinit prepared statement" );
 	}
 
 	rb_call_super( 0, 0 );

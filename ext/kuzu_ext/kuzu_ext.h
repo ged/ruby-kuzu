@@ -67,6 +67,8 @@ extern VALUE rkuzu_eConnectionError;
 extern VALUE rkuzu_eQueryError;
 
 extern VALUE rkuzu_rb_cDate;
+extern VALUE rkuzu_rb_cOstruct;
+
 
 /* -------------------------------------------------------
  * Initializer functions

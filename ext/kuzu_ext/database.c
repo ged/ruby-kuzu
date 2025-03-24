@@ -54,6 +54,7 @@ static void
 rkuzu_database_free( void *ptr )
 {
 	if ( ptr ) {
+		fprintf( stderr, ">>> freeing database %p\n", ptr );
 		rkuzu_database *object = (rkuzu_database *)ptr;
 
 		kuzu_database_destroy( &object->db );
@@ -118,6 +119,7 @@ rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
 		DATA_PTR( self ) = ptr = rkuzu_database_alloc();
 		kuzu_database_init( database_path, *sysconfig, &ptr->db );
 
+		fprintf( stderr, ">>> allocated database %p\n", ptr );
 		ptr->connections = rb_ary_new();
 		ptr->path = rb_obj_freeze( rb_obj_dup(path) );
 		ptr->config = rb_obj_freeze( config );
@@ -194,4 +196,3 @@ rkuzu_init_database( void )
 
 	rb_define_method( rkuzu_cKuzuDatabase, "connections", rkuzu_database_connections, 0 );
 }
-

@@ -22,5 +22,6 @@ spec/kuzu/database_spec.rb
 spec/kuzu/prepared_statement_spec.rb
 spec/kuzu/query_summary_spec.rb
 spec/kuzu/result_spec.rb
+spec/kuzu/types_spec.rb
 spec/kuzu_spec.rb
 spec/spec_helper.rb

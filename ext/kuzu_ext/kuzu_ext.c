@@ -18,6 +18,8 @@ VALUE rkuzu_eConnectionError;
 VALUE rkuzu_eQueryError;
 
 VALUE rkuzu_rb_cDate;
+VALUE rkuzu_rb_cOstruct;
+
 
 /* --------------------------------------------------------------
  * Logging Functions
@@ -120,6 +122,9 @@ Init_kuzu_ext( void )
 {
 	rb_require( "date" );
 	rkuzu_rb_cDate = rb_const_get( rb_cObject, rb_intern("Date") );
+
+	rb_require( "ostruct" );
+	rkuzu_rb_cOstruct = rb_const_get( rb_cObject, rb_intern("OpenStruct") );
 
 	rb_require( "kuzu" );
 

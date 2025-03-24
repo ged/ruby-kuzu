@@ -32,6 +32,7 @@ rkuzu_query_summary_free( void *ptr )
 	kuzu_query_summary *query_summary = (kuzu_query_summary *)ptr;
 
 	if ( ptr ) {
+		fprintf( stderr, ">>> freeing query summary %p\n", ptr );
 		kuzu_query_summary_destroy( query_summary );
 		xfree( ptr );
 	}
@@ -73,6 +74,7 @@ rkuzu_query_summary_s_from_result( VALUE klass, VALUE query_result )
 		rb_raise( rkuzu_eQueryError, "Could not fetch the query summary." );
 	}
 
+	fprintf( stderr, ">>> allocated query summary %p\n", query_summary );
 	DATA_PTR( query_summary_obj ) = query_summary;
 
 	return query_summary_obj;
@@ -138,4 +140,3 @@ rkuzu_init_query_summary( void )
 		rkuzu_query_summary_execution_time, 0 );
 
 }
-
