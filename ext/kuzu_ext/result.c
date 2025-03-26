@@ -45,7 +45,7 @@ rkuzu_result_free( void *ptr )
 	kuzu_query_result *result = (kuzu_query_result *)ptr;
 
 	if ( ptr ) {
-		fprintf( stderr, ">>> freeing result %p\n", ptr );
+		fprintf( stderr, ">>> freeing result %p\n", result->_query_result );
 		kuzu_query_result_destroy( result );
 		xfree( ptr );
 		ptr = NULL;
@@ -74,14 +74,14 @@ rkuzu_result_s_allocate( VALUE klass )
 static VALUE
 rkuzu_result_s_from_query( VALUE klass, VALUE connection, VALUE query )
 {
-	kuzu_connection *conn = rkuzu_get_connection( connection );
+	rkuzu_connection *conn = rkuzu_get_connection( connection );
 	const char *query_s = StringValueCStr( query );
 	kuzu_query_result *result = ALLOC( kuzu_query_result );
 
 	/*
 		TODO Release the GIL
 	*/
-	if ( kuzu_connection_query(conn, query_s, result) != KuzuSuccess ) {
+	if ( kuzu_connection_query(&conn->conn, query_s, result) != KuzuSuccess ) {
 		char *err_detail = kuzu_query_result_get_error_message( result );
 		char errmsg[ 4096 ] = "\0";
 
@@ -116,7 +116,7 @@ static VALUE
 rkuzu_result_s_from_prepared_statement( VALUE klass, VALUE statement )
 {
 	VALUE connection = rb_funcall( statement, rb_intern("connection"), 0 );
-	kuzu_connection *conn = rkuzu_get_connection( connection );
+	rkuzu_connection *conn = rkuzu_get_connection( connection );
 
 	kuzu_prepared_statement *stmt = rkuzu_get_prepared_statement( statement );
 
@@ -125,7 +125,7 @@ rkuzu_result_s_from_prepared_statement( VALUE klass, VALUE statement )
 	/*
 		TODO Release the GIL
 	*/
-	if ( kuzu_connection_execute(conn, stmt, result) != KuzuSuccess ) {
+	if ( kuzu_connection_execute(&conn->conn, stmt, result) != KuzuSuccess ) {
 		char *err_detail = kuzu_query_result_get_error_message( result );
 		char errmsg[ 4096 ] = "\0";
 
@@ -140,6 +140,7 @@ rkuzu_result_s_from_prepared_statement( VALUE klass, VALUE statement )
 
 	VALUE result_obj = rb_class_new_instance( 0, 0, klass );
 	DATA_PTR( result_obj ) = result;
+	rb_ivar_set( result_obj, rb_intern("@connection"), connection );
 
 	return result_obj;
 }
@@ -182,6 +183,7 @@ rkuzu_result_s_from_next_set( VALUE klass, VALUE result )
 
 	result_obj = rb_class_new_instance( 0, 0, klass );
 	DATA_PTR( result_obj ) = next_result;
+	rb_ivar_set( result_obj, rb_intern("@previous_result"), result );
 
 	return result_obj;
 }

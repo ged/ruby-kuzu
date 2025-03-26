@@ -69,12 +69,12 @@ rkuzu_prepared_statement_initialize( VALUE self, VALUE connection, VALUE query )
 	kuzu_prepared_statement *stmt = check_prepared_statement( self );
 
 	if ( !stmt ) {
-		kuzu_connection *conn = rkuzu_get_connection( connection );
+		rkuzu_connection *conn = rkuzu_get_connection( connection );
 		const char *query_s = StringValueCStr( query );
 
 		stmt = ALLOC( kuzu_prepared_statement );
 
-		if ( kuzu_connection_prepare(conn, query_s, stmt) != KuzuSuccess ) {
+		if ( kuzu_connection_prepare(&conn->conn, query_s, stmt) != KuzuSuccess ) {
 			char *err_detail = kuzu_prepared_statement_get_error_message( stmt );
 			char errmsg[ 4096 ] = "\0";
 

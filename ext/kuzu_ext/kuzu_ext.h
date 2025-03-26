@@ -39,13 +39,33 @@ void rkuzu_log (const char *, const char *, va_dcl);
  * Structs
  * -------------------------------------------------------------- */
 
-typedef struct
-{
+typedef struct {
     kuzu_database db;
     VALUE connections;
     VALUE path;
     VALUE config;
 } rkuzu_database;
+
+typedef struct {
+    kuzu_connection conn;
+    VALUE queries;
+    VALUE statements;
+    bool destroyed;
+} rkuzu_connection;
+
+typedef struct {
+    kuzu_query_result result;
+    VALUE query;
+    VALUE statement;
+    VALUE previous_result;
+    bool destroyed;
+} rkuzu_query_result;
+
+typedef struct {
+    kuzu_prepared_statement statement;
+    bool destroyed;
+} rkuzu_prepared_statement;
+
 
 /* -------------------------------------------------------
  * Globals
@@ -84,7 +104,7 @@ extern void rkuzu_init_query_summary _ ((void));
 
 extern rkuzu_database *rkuzu_get_database _ ((VALUE));
 extern kuzu_system_config *rkuzu_get_config _ ((VALUE));
-extern kuzu_connection *rkuzu_get_connection _ ((VALUE));
+extern rkuzu_connection *rkuzu_get_connection _ ((VALUE));
 extern kuzu_prepared_statement *rkuzu_get_prepared_statement _ ((VALUE));
 extern kuzu_query_result *rkuzu_get_result _ ((VALUE));
 

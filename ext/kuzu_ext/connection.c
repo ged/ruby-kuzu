@@ -9,37 +9,64 @@
 VALUE rkuzu_cKuzuConnection;
 
 static void rkuzu_connection_free( void * );
+static void rkuzu_connection_mark( void * );
 
 static const rb_data_type_t rkuzu_connection_type = {
 	.wrap_struct_name = "Kuzu::Connection",
 	.function = {
 		.dfree = rkuzu_connection_free,
+		.dmark = rkuzu_connection_mark,
 	},
 	.data = NULL,
 	.flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 
-#define check_connection(self) ((kuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
+#define check_connection(self) ((rkuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
 
 
-kuzu_connection *
+rkuzu_connection *
 rkuzu_get_connection( VALUE conn_obj )
 {
 	return check_connection( conn_obj );
 }
 
 
+static rkuzu_connection *
+rkuzu_connection_alloc( void )
+{
+	rkuzu_connection *ptr = ALLOC( rkuzu_connection );
+
+	ptr->queries = rb_ary_new();
+	ptr->statements = rb_ary_new();
+	ptr->destroyed = false;
+
+	return ptr;
+}
+
 static void
 rkuzu_connection_free( void *ptr )
 {
-	kuzu_connection *conn = (kuzu_connection *)ptr;
+	rkuzu_connection *conn_s = (rkuzu_connection *)ptr;
 
-	if ( ptr ) {
+	if ( ptr && !conn_s->destroyed ) {
 		fprintf( stderr, ">>> freeing connection %p\n", ptr );
-		kuzu_connection_destroy( conn );
+		kuzu_connection_destroy( &conn_s->conn );
 		xfree( ptr );
 		ptr = NULL;
+	}
+}
+
+
+static void
+rkuzu_connection_mark( void *ptr )
+{
+	rkuzu_connection *conn_s = (rkuzu_connection *)ptr;
+
+	if ( ptr ) {
+		fprintf( stderr, ">>> marking connection %p\n", ptr );
+		rb_gc_mark( conn_s->statements );
+		rb_gc_mark( conn_s->queries );
 	}
 }
 
@@ -65,13 +92,13 @@ rkuzu_connection_s_allocate( VALUE klass )
 static VALUE
 rkuzu_connection_initialize( VALUE self, VALUE database )
 {
-	kuzu_connection *ptr = check_connection( self );
+	rkuzu_connection *ptr = check_connection( self );
 
 	if ( !ptr ) {
 		rkuzu_database *dbobject = rkuzu_get_database( database );
-		ptr = ALLOC( kuzu_connection );
+		ptr = rkuzu_connection_alloc();
 
-		if ( kuzu_connection_init(&dbobject->db, ptr) != KuzuSuccess ) {
+		if ( kuzu_connection_init(&dbobject->db, &ptr->conn) != KuzuSuccess ) {
 			xfree( ptr );
 			ptr = NULL;
 			rb_raise( rkuzu_eConnectionError, "Failed to connect!" );
@@ -101,10 +128,10 @@ rkuzu_connection_initialize( VALUE self, VALUE database )
 static VALUE
 rkuzu_connection_max_num_threads_for_exec( VALUE self )
 {
-	kuzu_connection *ptr = check_connection( self );
+	rkuzu_connection *ptr = check_connection( self );
 	uint64_t count;
 
-	if ( kuzu_connection_get_max_num_thread_for_exec( ptr, &count ) != KuzuSuccess ) {
+	if ( kuzu_connection_get_max_num_thread_for_exec( &ptr->conn, &count ) != KuzuSuccess ) {
 		rb_raise( rkuzu_eError, "kuzu_connection_get_max_num_thread_for_exec failed" );
 	}
 
@@ -123,10 +150,10 @@ rkuzu_connection_max_num_threads_for_exec( VALUE self )
 static VALUE
 rkuzu_connection_max_num_threads_for_exec_eq( VALUE self, VALUE count )
 {
-	kuzu_connection *ptr = check_connection( self );
+	rkuzu_connection *ptr = check_connection( self );
 	uint64_t thread_count = NUM2ULONG( count );
 
-	if ( kuzu_connection_set_max_num_thread_for_exec( ptr, thread_count ) != KuzuSuccess ) {
+	if ( kuzu_connection_set_max_num_thread_for_exec( &ptr->conn, thread_count ) != KuzuSuccess ) {
 		rb_raise( rkuzu_eError, "kuzu_connection_set_max_num_thread_for_exec failed" );
 	}
 
@@ -144,10 +171,10 @@ rkuzu_connection_max_num_threads_for_exec_eq( VALUE self, VALUE count )
 static VALUE
 rkuzu_connection_query_timeout_eq( VALUE self, VALUE timeout )
 {
-	kuzu_connection *ptr = check_connection( self );
+	rkuzu_connection *ptr = check_connection( self );
 	uint64_t timeout_in_ms = NUM2ULONG( timeout );
 
-	if ( kuzu_connection_set_query_timeout( ptr, timeout_in_ms ) != KuzuSuccess ) {
+	if ( kuzu_connection_set_query_timeout( &ptr->conn, timeout_in_ms ) != KuzuSuccess ) {
 		rb_raise( rkuzu_eError, "kuzu_connection_set_query_timeout failed" );
 	}
 
