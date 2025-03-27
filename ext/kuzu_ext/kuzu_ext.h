@@ -55,6 +55,7 @@ typedef struct {
 
 typedef struct {
     kuzu_query_result result;
+    VALUE connection;
     VALUE query;
     VALUE statement;
     VALUE previous_result;
@@ -106,7 +107,7 @@ extern rkuzu_database *rkuzu_get_database _ ((VALUE));
 extern kuzu_system_config *rkuzu_get_config _ ((VALUE));
 extern rkuzu_connection *rkuzu_get_connection _ ((VALUE));
 extern kuzu_prepared_statement *rkuzu_get_prepared_statement _ ((VALUE));
-extern kuzu_query_result *rkuzu_get_result _ ((VALUE));
+extern rkuzu_query_result *rkuzu_get_result _ ((VALUE));
 
 extern VALUE rkuzu_convert_kuzu_value_to_ruby _ ((kuzu_data_type_id, kuzu_value *));
 extern VALUE rkuzu_convert_logical_kuzu_value_to_ruby _ ((kuzu_logical_type *, kuzu_value *));
