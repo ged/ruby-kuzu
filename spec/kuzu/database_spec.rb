@@ -46,8 +46,6 @@ RSpec.describe( Kuzu::Database ) do
 		result = instance.connect
 
 		expect( result ).to be_a( Kuzu::Connection )
-		expect( instance.connections ).to include( result )
 	end
 
 end
-

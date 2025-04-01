@@ -15,13 +15,8 @@ RSpec.describe( Kuzu::PreparedStatement ) do
 
 
 	def setup_demo_db
-		result = connection.query( schema )
-		raise "query error while loading schema: %s" % [ result.error_message ] unless
-			result.success?
-
-		result = connection.query( copy_statements )
-		raise "query error while loading data: %s" % [ result.error_message ] unless
-			result.success?
+		connection.run( schema )
+		connection.run( copy_statements )
 	end
 
 
@@ -57,6 +52,8 @@ RSpec.describe( Kuzu::PreparedStatement ) do
 		result = statement.execute
 
 		expect( result.num_tuples ).to eq( 0 )
+
+		result.finish
 	end
 
 
@@ -70,6 +67,8 @@ RSpec.describe( Kuzu::PreparedStatement ) do
 		result = statement.execute( min_age: 40, max_age: 50 )
 
 		expect( result.num_tuples ).to eq( 2 )
+
+		result.finish
 	end
 
 
@@ -83,10 +82,12 @@ RSpec.describe( Kuzu::PreparedStatement ) do
 		result = statement.execute( min_age: 40, max_age: 50 )
 		expect( result ).to be_success
 		expect( result.num_tuples ).to eq( 2 )
+		result.finish
 
 		result = statement.execute( min_age: 5, max_age: 90 )
 		expect( result ).to be_success
 		expect( result.num_tuples ).to eq( 4 )
+		result.finish
 	end
 
 end

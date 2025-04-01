@@ -14,8 +14,10 @@
 VALUE rkuzu_mKuzu;
 
 VALUE rkuzu_eError;
+VALUE rkuzu_eDatabaseError;
 VALUE rkuzu_eConnectionError;
 VALUE rkuzu_eQueryError;
+VALUE rkuzu_eFinishedError;
 
 VALUE rkuzu_rb_cDate;
 VALUE rkuzu_rb_cOstruct;
@@ -126,8 +128,6 @@ Init_kuzu_ext( void )
 	rb_require( "ostruct" );
 	rkuzu_rb_cOstruct = rb_const_get( rb_cObject, rb_intern("OpenStruct") );
 
-	rb_require( "kuzu" );
-
 	/*
 	 * Document-module: Kuzu
 	 *
@@ -139,8 +139,12 @@ Init_kuzu_ext( void )
 	rb_define_singleton_method( rkuzu_mKuzu, "storage_version", rkuzu_s_storage_version, 0 );
 
 	rkuzu_eError = rb_define_class_under( rkuzu_mKuzu, "Error", rb_eRuntimeError );
-	rkuzu_eConnectionError = rb_define_class_under( rkuzu_mKuzu, "ConnectError", rkuzu_eError );
+	rkuzu_eDatabaseError = rb_define_class_under( rkuzu_mKuzu, "DatabaseError", rkuzu_eError );
+	rkuzu_eConnectionError = rb_define_class_under( rkuzu_mKuzu, "ConnectionError", rkuzu_eError );
 	rkuzu_eQueryError = rb_define_class_under( rkuzu_mKuzu, "QueryError", rkuzu_eError );
+	rkuzu_eFinishedError = rb_define_class_under( rkuzu_mKuzu, "FinishedError", rkuzu_eError );
+
+	rb_require( "kuzu" );
 
 	rkuzu_init_database();
 	rkuzu_init_config();

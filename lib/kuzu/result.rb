@@ -7,12 +7,46 @@ require 'kuzu' unless defined?( Kuzu )
 
 # Kùzu query result class
 class Kuzu::Result
-	extend Loggability,
-		Enumerable
+	extend Loggability
 
 
 	# Loggability API -- log to Kuzu's logger
 	log_to :kuzu
+
+
+	### Execute the given +query+ via the specified +connection+ and return the
+	### Kuzu::Result. If a block is given, the result will instead be yielded to it,
+	### finished when it returns, and the return value of the block will be returned
+	### instead.
+	def self::from_query( connection, query, &block )
+		result = self._from_query( connection, query )
+		return self.wrap_block_result( result, &block )
+	end
+
+
+	### Execute the given +statement+ and return the Kuzu::Result. If a block is given,
+	### the result will instead be yielded to it, finished when it returns, and the
+	### return value of the block will be returned instead.
+	def self::from_prepared_statement( statement, &block )
+		result = self._from_prepared_statement( statement )
+
+		return self.wrap_block_result( result, &block )
+	end
+
+
+	### If the +block+ is provided, yield +result+ to it and then call #finish on it,
+	### returning the +block+ result. If +block+ is not given, just return +result+.
+	def self::wrap_block_result( result, &block )
+		return result unless block
+
+		begin
+			rval = block.call( result )
+		ensure
+			result.finish
+		end
+
+		return rval
+	end
 
 
 	### Fetch the names of the columns in the result as an Array of Strings.
@@ -63,11 +97,15 @@ class Kuzu::Result
 
 	### Return a string representation of the receiver suitable for debugging.
 	def inspect
-		details = " success: %p (%d tuples of %d columns)" % [
-			self.success?,
-			self.num_tuples,
-			self.num_columns,
-		]
+		if self.finished?
+			details = " (finished)"
+		else
+			details = " success: %p (%d tuples of %d columns)" % [
+				self.success?,
+				self.num_tuples,
+				self.num_columns,
+			]
+		end
 
 		default = super
 		return default.sub( />/, details + '>' )

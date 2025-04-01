@@ -5,12 +5,13 @@
 
 #include "kuzu_ext.h"
 
+#define check_query_summary(self) \
+	((kuzu_query_summary*)rb_check_typeddata((self), &rkuzu_query_summary_type))
+
 
 VALUE rkuzu_cKuzuQuerySummary;
 
-
 static void rkuzu_query_summary_free( void * );
-
 
 static const rb_data_type_t rkuzu_query_summary_type = {
 	.wrap_struct_name = "Kuzu::QuerySummary",
@@ -18,12 +19,7 @@ static const rb_data_type_t rkuzu_query_summary_type = {
 		.dfree = rkuzu_query_summary_free,
 	},
 	.data = NULL,
-	.flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
-
-
-#define check_query_summary(self) \
-	((kuzu_query_summary*)rb_check_typeddata((self), &rkuzu_query_summary_type))
 
 
 static void
@@ -37,7 +33,6 @@ rkuzu_query_summary_free( void *ptr )
 		xfree( ptr );
 	}
 }
-
 
 
 /*
@@ -60,7 +55,7 @@ rkuzu_query_summary_s_allocate( VALUE klass )
 static VALUE
 rkuzu_query_summary_s_from_result( VALUE klass, VALUE query_result )
 {
-	kuzu_query_result *result = rkuzu_get_result( query_result );
+	rkuzu_query_result *result = rkuzu_get_result( query_result );
 
 	kuzu_query_summary *query_summary = ALLOC( kuzu_query_summary );
 	VALUE query_summary_obj = rb_class_new_instance( 0, 0, klass );
@@ -68,7 +63,7 @@ rkuzu_query_summary_s_from_result( VALUE klass, VALUE query_result )
 	/*
 		TODO Release the GIL
 	*/
-	if ( kuzu_query_result_get_query_summary(result, query_summary) != KuzuSuccess ) {
+	if ( kuzu_query_result_get_query_summary(&result->result, query_summary) != KuzuSuccess ) {
 		xfree( query_summary );
 		query_summary = NULL;
 		rb_raise( rkuzu_eQueryError, "Could not fetch the query summary." );
@@ -139,4 +134,5 @@ rkuzu_init_query_summary( void )
 	rb_define_method( rkuzu_cKuzuQuerySummary, "execution_time",
 		rkuzu_query_summary_execution_time, 0 );
 
+	rb_require( "kuzu/query_summary" );
 }

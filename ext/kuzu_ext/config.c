@@ -5,19 +5,16 @@
 
 #include "kuzu_ext.h"
 
+#define check_config(self) ((kuzu_system_config*)rb_check_typeddata((self), &rkuzu_config_type))
+
 
 VALUE rkuzu_cKuzuConfig;
-
 
 static const rb_data_type_t rkuzu_config_type = {
 	.wrap_struct_name = "Kuzu::Config",
 	.function = {},
 	.data = NULL,
-	.flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
-
-
-#define check_config(self) ((kuzu_system_config*)rb_check_typeddata((self), &rkuzu_config_type))
 
 
 
@@ -317,5 +314,5 @@ rkuzu_init_config( void )
 	rb_define_method( rkuzu_cKuzuConfig, "auto_checkpoint=", rkuzu_config_auto_checkpoint_eq, 1 );
 	rb_define_method( rkuzu_cKuzuConfig, "checkpoint_threshold=", rkuzu_config_checkpoint_threshold_eq, 1 );
 
+	rb_require( "kuzu/config" );
 }
-

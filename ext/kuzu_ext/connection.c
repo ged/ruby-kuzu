@@ -4,6 +4,9 @@
  */
 
 #include "kuzu_ext.h"
+#include <stdbool.h>
+
+#define check_connection(self) ((rkuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
 
 
 VALUE rkuzu_cKuzuConnection;
@@ -18,11 +21,7 @@ static const rb_data_type_t rkuzu_connection_type = {
 		.dmark = rkuzu_connection_mark,
 	},
 	.data = NULL,
-	.flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
-
-
-#define check_connection(self) ((rkuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
 
 
 rkuzu_connection *
@@ -37,21 +36,24 @@ rkuzu_connection_alloc( void )
 {
 	rkuzu_connection *ptr = ALLOC( rkuzu_connection );
 
+	ptr->database = Qnil;
 	ptr->queries = rb_ary_new();
 	ptr->statements = rb_ary_new();
-	ptr->destroyed = false;
 
 	return ptr;
 }
+
 
 static void
 rkuzu_connection_free( void *ptr )
 {
 	rkuzu_connection *conn_s = (rkuzu_connection *)ptr;
 
-	if ( ptr && !conn_s->destroyed ) {
+	if ( ptr ) {
 		fprintf( stderr, ">>> freeing connection %p\n", ptr );
+
 		kuzu_connection_destroy( &conn_s->conn );
+
 		xfree( ptr );
 		ptr = NULL;
 	}
@@ -65,6 +67,7 @@ rkuzu_connection_mark( void *ptr )
 
 	if ( ptr ) {
 		fprintf( stderr, ">>> marking connection %p\n", ptr );
+		rb_gc_mark( conn_s->database );
 		rb_gc_mark( conn_s->statements );
 		rb_gc_mark( conn_s->queries );
 	}
@@ -105,8 +108,10 @@ rkuzu_connection_initialize( VALUE self, VALUE database )
 		}
 
 		fprintf( stderr, ">>> allocated connection %p\n", ptr );
-		DATA_PTR( self ) = ptr;
-		rb_ary_push( dbobject->connections, self );
+		RTYPEDDATA_DATA( self ) = ptr;
+
+		ptr->database = database;
+
 	} else {
 		rb_raise( rb_eRuntimeError, "cannot reinit connection" );
 	}
@@ -206,4 +211,5 @@ rkuzu_init_connection( void )
 
 	rb_define_method( rkuzu_cKuzuConnection, "query_timeout=", rkuzu_connection_query_timeout_eq, 1 );
 
+	rb_require( "kuzu/connection" );
 }

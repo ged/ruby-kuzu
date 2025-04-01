@@ -17,6 +17,8 @@
 #include <ruby/thread.h>
 #include <ruby/version.h>
 
+#include <stdbool.h>
+
 #include "kuzu.h"
 
 /* --------------------------------------------------------------
@@ -41,16 +43,15 @@ void rkuzu_log (const char *, const char *, va_dcl);
 
 typedef struct {
     kuzu_database db;
-    VALUE connections;
     VALUE path;
     VALUE config;
 } rkuzu_database;
 
 typedef struct {
     kuzu_connection conn;
+    VALUE database;
     VALUE queries;
     VALUE statements;
-    bool destroyed;
 } rkuzu_connection;
 
 typedef struct {
@@ -59,12 +60,15 @@ typedef struct {
     VALUE query;
     VALUE statement;
     VALUE previous_result;
-    bool destroyed;
+    VALUE next_result;
+    bool finished;
 } rkuzu_query_result;
 
 typedef struct {
     kuzu_prepared_statement statement;
-    bool destroyed;
+    VALUE connection;
+    VALUE query;
+    bool finished;
 } rkuzu_prepared_statement;
 
 
@@ -72,9 +76,7 @@ typedef struct {
  * Globals
  * ------------------------------------------------------- */
 
-/*
- * Modules
- */
+// Modules and classes
 extern VALUE rkuzu_mKuzu;
 extern VALUE rkuzu_cKuzuDatabase;
 extern VALUE rkuzu_cKuzuConfig;
@@ -83,10 +85,14 @@ extern VALUE rkuzu_cKuzuPreparedStatement;
 extern VALUE rkuzu_cKuzuResult;
 extern VALUE rkuzu_cKuzuQuerySummary;
 
+// Exception types
 extern VALUE rkuzu_eError;
+extern VALUE rkuzu_eDatabaseError;
 extern VALUE rkuzu_eConnectionError;
 extern VALUE rkuzu_eQueryError;
+extern VALUE rkuzu_eFinishedError;
 
+// Internal refs to external classes
 extern VALUE rkuzu_rb_cDate;
 extern VALUE rkuzu_rb_cOstruct;
 
@@ -106,7 +112,7 @@ extern void rkuzu_init_query_summary _ ((void));
 extern rkuzu_database *rkuzu_get_database _ ((VALUE));
 extern kuzu_system_config *rkuzu_get_config _ ((VALUE));
 extern rkuzu_connection *rkuzu_get_connection _ ((VALUE));
-extern kuzu_prepared_statement *rkuzu_get_prepared_statement _ ((VALUE));
+extern rkuzu_prepared_statement *rkuzu_get_prepared_statement _ ((VALUE));
 extern rkuzu_query_result *rkuzu_get_result _ ((VALUE));
 
 extern VALUE rkuzu_convert_kuzu_value_to_ruby _ ((kuzu_data_type_id, kuzu_value *));

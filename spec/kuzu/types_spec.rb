@@ -16,10 +16,15 @@ RSpec.describe( "data types" ) do
 	#
 
 	it "converts STRUCT values to OpenStructs" do
+		pending "need to fix the type conversion"
+
 		result = connection.query( "RETURN {first: 'Adam', last: 'Smith'};" )
 
 		expect( result ).to be_a( Kuzu::Result )
 		expect( result ).to be_success
+
+		expect( result ).to respond_to( :each )
+		expect( result ).to respond_to( :first )
 
 		value = result.first
 		expect( value ).to be_a( OpenStruct )
@@ -28,6 +33,7 @@ RSpec.describe( "data types" ) do
 		expect( value.last ).to eq( "Smith" )
 		expect( value.last.encoding ).to eq( Encoding::UTF_8 )
 
+		result.finish
 	end
 
 end

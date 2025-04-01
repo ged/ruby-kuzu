@@ -18,12 +18,13 @@ RSpec.describe( Kuzu::QuerySummary ) do
 
 
 	it "can return a summary of its query's timing" do
-		result = connection.query( CREATE_TABLE_STATEMENTS.first ).query_summary
+		connection.query( CREATE_TABLE_STATEMENTS.first ) do |result|
+			summary = result.query_summary
 
-		expect( result ).to be_a( described_class )
-		expect( result.compiling_time ).to be_a( Float ).and( be > 0.0 )
-		expect( result.execution_time ).to be_a( Float ).and( be > 0.0 )
+			expect( summary ).to be_a( described_class )
+			expect( summary.compiling_time ).to be_a( Float ).and( be > 0.0 )
+			expect( summary.execution_time ).to be_a( Float ).and( be > 0.0 )
+		end
 	end
 
 end
-

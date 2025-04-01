@@ -1,9 +1,12 @@
 /*
  *  database.c - Kuzu::Database class
- *
  */
 
+#include "kuzu.h"
 #include "kuzu_ext.h"
+#include "ruby/internal/core/rdata.h"
+
+#define check_database(self) ((rkuzu_database*)rb_check_typeddata((self), &rkuzu_database_type))
 
 
 VALUE rkuzu_cKuzuDatabase;
@@ -18,11 +21,8 @@ static const rb_data_type_t rkuzu_database_type = {
 		.dfree = rkuzu_database_free,
 	},
 	.data = NULL,
-	.flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
-
-#define check_database(self) ((rkuzu_database*)rb_check_typeddata((self), &rkuzu_database_type))
 
 rkuzu_database *
 rkuzu_get_database( VALUE obj )
@@ -39,7 +39,6 @@ rkuzu_database_alloc( void )
 {
 	rkuzu_database *ptr = ALLOC( rkuzu_database );
 
-	ptr->connections = Qnil;
 	ptr->path = Qnil;
 	ptr->config = Qnil;
 
@@ -55,13 +54,12 @@ rkuzu_database_free( void *ptr )
 {
 	if ( ptr ) {
 		fprintf( stderr, ">>> freeing database %p\n", ptr );
-		rkuzu_database *object = (rkuzu_database *)ptr;
+		rkuzu_database *database_s = (rkuzu_database *)ptr;
 
-		kuzu_database_destroy( &object->db );
+		kuzu_database_destroy( &database_s->db );
 
-		object->connections = Qnil;
-		object->path = Qnil;
-		object->config = Qnil;
+		database_s->path = Qnil;
+		database_s->config = Qnil;
 
 		xfree( ptr );
 		ptr = NULL;
@@ -75,8 +73,12 @@ rkuzu_database_free( void *ptr )
 static void
 rkuzu_database_mark( void *ptr )
 {
-	rkuzu_database *object = (rkuzu_database *)ptr;
-	rb_gc_mark( object->connections );
+	rkuzu_database *database_s = (rkuzu_database *)ptr;
+
+	fprintf( stderr, ">>> marking database %p\n", ptr );
+
+	rb_gc_mark( database_s->path );
+	rb_gc_mark( database_s->config );
 }
 
 
@@ -106,24 +108,30 @@ rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
 	if ( !ptr ) {
 		VALUE path, options, config;
 		VALUE config_argv[1];
-		rkuzu_database *ptr = NULL;
 		kuzu_system_config *sysconfig;
+		char *database_path;
 
 		rb_scan_args( argc, argv, "1:", &path, &options );
 		config_argv[0] = options;
 		config = rb_funcallv_public_kw( rkuzu_cKuzuConfig, rb_intern("from_options"), 1,
 			config_argv, RB_PASS_KEYWORDS );
-		sysconfig = rkuzu_get_config( config );
 
-		const char *database_path = StringValueCStr( path );
-		DATA_PTR( self ) = ptr = rkuzu_database_alloc();
-		kuzu_database_init( database_path, *sysconfig, &ptr->db );
+		sysconfig = rkuzu_get_config( config );
+		database_path = StringValueCStr( path );
+
+		ptr = rkuzu_database_alloc();
+		if ( kuzu_database_init(database_path, *sysconfig, &ptr->db) != KuzuSuccess ) {
+			xfree( ptr );
+			ptr = NULL;
+
+			rb_raise( rkuzu_eDatabaseError, "Couldn't create database!" );
+		}
 
 		fprintf( stderr, ">>> allocated database %p\n", ptr );
-		ptr->connections = rb_ary_new();
+		RTYPEDDATA_DATA( self ) = ptr;
+
 		ptr->path = rb_obj_freeze( rb_obj_dup(path) );
 		ptr->config = rb_obj_freeze( config );
-
 	} else {
 		rb_raise( rb_eRuntimeError, "cannot reinit database" );
 	}
@@ -172,16 +180,6 @@ rkuzu_database_path( VALUE self )
 }
 
 
-static VALUE
-rkuzu_database_connections( VALUE self )
-{
-	rkuzu_database *ptr = check_database( self );
-	VALUE connections = rb_obj_dup( ptr->connections );
-
-	return rb_obj_freeze( connections );
-}
-
-
 void
 rkuzu_init_database( void )
 {
@@ -194,5 +192,5 @@ rkuzu_init_database( void )
 	rb_define_method( rkuzu_cKuzuDatabase, "config", rkuzu_database_config, 0 );
 	rb_define_method( rkuzu_cKuzuDatabase, "path", rkuzu_database_path, 0 );
 
-	rb_define_method( rkuzu_cKuzuDatabase, "connections", rkuzu_database_connections, 0 );
+	rb_require( "kuzu/database" );
 }
