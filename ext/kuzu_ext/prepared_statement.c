@@ -3,11 +3,13 @@
  *
  */
 
+#include "kuzu.h"
 #include "kuzu_ext.h"
-#include "ruby/internal/value.h"
 
-#define check_prepared_statement( self ) \
+#define CHECK_PREPARED_STATEMENT( self ) \
 	((rkuzu_prepared_statement *)rb_check_typeddata( (self), &rkuzu_prepared_statement_type) )
+// #define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
+#define DEBUG_GC(msg, ptr)
 
 
 VALUE rkuzu_cKuzuPreparedStatement;
@@ -33,7 +35,7 @@ static const rb_data_type_t rkuzu_prepared_statement_type = {
 rkuzu_prepared_statement *
 rkuzu_get_prepared_statement( VALUE prepared_statement_obj )
 {
-	return check_prepared_statement( prepared_statement_obj );
+	return CHECK_PREPARED_STATEMENT( prepared_statement_obj );
 }
 
 
@@ -74,7 +76,7 @@ static void
 rkuzu_prepared_statement_free( void *ptr )
 {
 	if ( ptr ) {
-		fprintf( stderr, ">>> freeing prepared statement %p\n", ptr );
+		DEBUG_GC( ">>> freeing prepared statement %p\n", ptr );
 		// Can't kuzu_prepared_statement_destroy here because the database or connection
 		// might already have been destroyed.
 		xfree( ptr );
@@ -96,7 +98,7 @@ rkuzu_prepared_statement_s_allocate( VALUE klass )
 static VALUE
 rkuzu_prepared_statement_initialize( VALUE self, VALUE connection, VALUE query )
 {
-	rkuzu_prepared_statement *stmt = check_prepared_statement( self );
+	rkuzu_prepared_statement *stmt = CHECK_PREPARED_STATEMENT( self );
 
 	if ( !stmt ) {
 		rkuzu_connection *conn = rkuzu_get_connection( connection );
@@ -117,8 +119,8 @@ rkuzu_prepared_statement_initialize( VALUE self, VALUE connection, VALUE query )
 			rb_raise( rkuzu_eQueryError, "%s", errmsg );
 		}
 
-		fprintf( stderr, ">>> allocated prepared statement %p\n", stmt );
-		DATA_PTR( self ) = stmt;
+		DEBUG_GC( ">>> allocated prepared statement %p\n", stmt );
+		RTYPEDDATA_DATA( self ) = stmt;
 
 		stmt->connection = connection;
 		stmt->query = query;
@@ -143,7 +145,7 @@ rkuzu_prepared_statement_initialize( VALUE self, VALUE connection, VALUE query )
 static VALUE
 rkuzu_prepared_statement_success_p( VALUE self )
 {
-	rkuzu_prepared_statement *stmt = check_prepared_statement( self );
+	rkuzu_prepared_statement *stmt = CHECK_PREPARED_STATEMENT( self );
 
 	if ( kuzu_prepared_statement_is_success(&stmt->statement) ) {
 		return Qtrue;
@@ -163,9 +165,10 @@ rkuzu_prepared_statement_success_p( VALUE self )
 static VALUE
 rkuzu_prepared_statement_bind_variable( VALUE self, VALUE name, VALUE value )
 {
-	rkuzu_prepared_statement *stmt = check_prepared_statement( self );
+	rkuzu_prepared_statement *stmt = CHECK_PREPARED_STATEMENT( self );
 	VALUE name_string = rb_funcall( name, rb_intern("to_s"), 0 );
 	const char *name_s = StringValueCStr( name_string );
+	kuzu_value *null_value;
 
 	switch (TYPE(value)) {
 		case T_TRUE:
@@ -191,6 +194,11 @@ rkuzu_prepared_statement_bind_variable( VALUE self, VALUE name, VALUE value )
 			break; // not reached
 
 		case T_NIL:
+			null_value = kuzu_value_create_null();
+			kuzu_prepared_statement_bind_value( &stmt->statement, name_s, null_value );
+			kuzu_value_destroy( null_value );
+			break;
+
 		case T_OBJECT:
 		case T_CLASS:
 		case T_MODULE:

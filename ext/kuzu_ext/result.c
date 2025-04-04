@@ -2,16 +2,11 @@
  *  result.c - Kuzu::Result class
  */
 
-#include "kuzu.h"
 #include "kuzu_ext.h"
-#include "ruby/internal/eval.h"
-#include "ruby/internal/intern/variable.h"
-#include "ruby/internal/module.h"
-#include "ruby/internal/special_consts.h"
-#include "ruby/internal/value.h"
-#include <stdio.h>
 
-#define check_result(self) ((rkuzu_query_result *)rb_check_typeddata((self), &rkuzu_result_type))
+#define CHECK_RESULT(self) ((rkuzu_query_result *)rb_check_typeddata((self), &rkuzu_result_type))
+// #define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
+#define DEBUG_GC(msg, ptr)
 
 
 VALUE rkuzu_cKuzuResult;
@@ -36,13 +31,13 @@ static const rb_data_type_t rkuzu_result_type = {
 rkuzu_query_result *
 rkuzu_get_result( VALUE result_obj )
 {
-	rkuzu_query_result *res = check_result( result_obj );
+	rkuzu_query_result *res = CHECK_RESULT( result_obj );
 
 	if ( res->finished ) {
-		fprintf( stderr, "XXX Getting a FINISHED result %p\n", res );
+		DEBUG_GC( "XXX Getting a FINISHED result %p\n", res );
 		rb_raise( rkuzu_eFinishedError, "result has been finished.\n" );
 	} else {
-		fprintf( stderr, ">>> Result %p is NOT finished.\n", res );
+		DEBUG_GC( ">>> Result %p is NOT finished.\n", res );
 	}
 
 	return res;
@@ -102,16 +97,16 @@ rkuzu_result_free( void *ptr )
 		kuzu_query_result *i_result = &result->result;
 
 		if ( i_result->_is_owned_by_cpp != NULL ) {
-			fprintf( stderr, ">>> destroying query_result %p\n", ptr );
+			DEBUG_GC( ">>> destroying query_result %p\n", ptr );
 			kuzu_query_result_destroy( i_result );
 		}
 		*/
 
 		if ( !result->finished ) {
-			fprintf( stderr, "*** Possibly leaking result %p\n", result );
+			DEBUG_GC( "*** Possibly leaking result %p\n", result );
 		}
 
-		fprintf( stderr, ">>> Freeing result %p\n", ptr );
+		DEBUG_GC( ">>> Freeing result %p\n", ptr );
 		xfree( ptr );
 		ptr = NULL;
 	}
@@ -153,7 +148,7 @@ rkuzu_result_s__from_query( VALUE klass, VALUE connection, VALUE query )
 		rb_raise( rkuzu_eQueryError, "%s", errmsg );
 	}
 
-	fprintf( stderr, ">>> allocated result %p\n", result );
+	DEBUG_GC( ">>> allocated result %p\n", result );
 
 	VALUE result_obj = rb_class_new_instance( 0, 0, klass );
 	RTYPEDDATA_DATA( result_obj ) = result;
@@ -190,10 +185,10 @@ rkuzu_result_s__from_prepared_statement( VALUE klass, VALUE statement )
 		rb_raise( rkuzu_eQueryError, "%s", errmsg );
 	}
 
-	fprintf( stderr, ">>> allocated result %p\n", result );
+	DEBUG_GC( ">>> allocated result %p\n", result );
 
 	VALUE result_obj = rb_class_new_instance( 0, 0, klass );
-	DATA_PTR( result_obj ) = result;
+	RTYPEDDATA_DATA( result_obj ) = result;
 
 	result->connection = connection;
 	result->statement = statement;
@@ -241,10 +236,10 @@ rkuzu_result_s_from_next_set( VALUE klass, VALUE result )
 		rb_raise( rkuzu_eQueryError, "%s", errmsg );
 	}
 
-	fprintf( stderr, ">>> allocated result %p\n", next_result );
+	DEBUG_GC( ">>> allocated result %p\n", next_result );
 
 	result_obj = rb_class_new_instance( 0, 0, klass );
-	DATA_PTR( result_obj ) = next_result;
+	RTYPEDDATA_DATA( result_obj ) = next_result;
 
 	next_result->connection = start_result->connection;
 	next_result->previous_result = result;
@@ -473,12 +468,12 @@ rkuzu_result_get_column_names( VALUE self )
 static VALUE
 rkuzu_result_finish( VALUE self )
 {
-	rkuzu_query_result *result = check_result( self );
+	rkuzu_query_result *result = CHECK_RESULT( self );
 	kuzu_query_result *i_result = &result->result;
 	VALUE related_res;
 
 	if ( !result->finished ) {
-		fprintf( stderr, ">>> Finishing %p\n", result );
+		DEBUG_GC( ">>> Finishing %p\n", result );
 		result->finished = true;
 		if ( i_result->_query_result != NULL ) {
 			kuzu_query_result_destroy( i_result );
@@ -510,7 +505,7 @@ rkuzu_result_finish( VALUE self )
 static VALUE
 rkuzu_result_finished_p( VALUE self )
 {
-	rkuzu_query_result *result = check_result( self );
+	rkuzu_query_result *result = CHECK_RESULT( self );
 	if ( result->finished ) {
 		return Qtrue;
 	} else {

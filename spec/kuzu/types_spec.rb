@@ -36,4 +36,12 @@ RSpec.describe( "data types" ) do
 		result.finish
 	end
 
+
+	it "converts between nil and NULL" do
+		stmt = connection.prepare( "RETURN $the_value AS value;" )
+		result = stmt.execute( the_value: nil )
+
+		expect( result.first ).to eq( {'value' => nil} )
+	end
+
 end

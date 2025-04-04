@@ -340,8 +340,13 @@ rkuzu_convert_struct( kuzu_value *value )
 VALUE
 rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 {
+	if ( kuzu_value_is_null(value) ) {
+		return Qnil;
+	}
+
 	switch( type_id ) {
 		case KUZU_BOOL: return rkuzu_convert_bool( value );
+
 		case KUZU_INT64: return rkuzu_convert_int64( value );
 		case KUZU_INT32: return rkuzu_convert_int32( value );
 		case KUZU_INT16: return rkuzu_convert_int16( value );
@@ -351,14 +356,18 @@ rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 		case KUZU_UINT16: return rkuzu_convert_uint16( value );
 		case KUZU_UINT8: return rkuzu_convert_uint8( value );
 		case KUZU_INT128: return rkuzu_convert_int128( value );
+
 		case KUZU_DOUBLE: return rkuzu_convert_double( value );
 		case KUZU_FLOAT: return rkuzu_convert_float( value );
+
 		case KUZU_DATE: return rkuzu_convert_date( value );
+
 		case KUZU_TIMESTAMP: return rkuzu_convert_timestamp( value );
 		case KUZU_TIMESTAMP_SEC: return rkuzu_convert_timestamp_sec( value );
 		case KUZU_TIMESTAMP_MS: return rkuzu_convert_timestamp_ms( value );
 		case KUZU_TIMESTAMP_NS: return rkuzu_convert_timestamp_ns( value );
 		case KUZU_TIMESTAMP_TZ: return rkuzu_convert_timestamp_tz( value );
+
 		case KUZU_DECIMAL: return rkuzu_convert_decimal( value );
 
 		case KUZU_STRING: return rkuzu_convert_string( value );
@@ -367,6 +376,7 @@ rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 		case KUZU_BLOB: return rkuzu_convert_blob( value );
 		case KUZU_LIST: return rkuzu_convert_list( value );
 		case KUZU_STRUCT: return rkuzu_convert_struct( value );
+
 		case KUZU_MAP:
 		case KUZU_UNION:
 		case KUZU_POINTER:

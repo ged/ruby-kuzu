@@ -31,6 +31,12 @@ class Kuzu::Connection
 	end
 
 
+	### Create a new Kuzu::PreparedStatement for the specified +query_string+.
+	def prepare( query_string )
+		return Kuzu::PreparedStatement.new( self, query_string )
+	end
+
+
 	### Executes the given +statement+ (a Kuzu::PreparedStatement) after binding
 	### the given +bound_variables+ to it.
 	def execute( statement, **bound_variables, &block )

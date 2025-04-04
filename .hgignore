@@ -8,4 +8,6 @@ spec/\.status
 \.clang*
 \.ruby-lsp/
 \.zed/
-
+\.nim$
+\.tsv$
+imdb/

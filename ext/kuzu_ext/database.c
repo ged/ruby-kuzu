@@ -2,11 +2,11 @@
  *  database.c - Kuzu::Database class
  */
 
-#include "kuzu.h"
 #include "kuzu_ext.h"
-#include "ruby/internal/core/rdata.h"
 
-#define check_database(self) ((rkuzu_database*)rb_check_typeddata((self), &rkuzu_database_type))
+#define CHECK_DATABASE(self) ((rkuzu_database*)rb_check_typeddata((self), &rkuzu_database_type))
+// #define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
+#define DEBUG_GC(msg, ptr)
 
 
 VALUE rkuzu_cKuzuDatabase;
@@ -27,7 +27,7 @@ static const rb_data_type_t rkuzu_database_type = {
 rkuzu_database *
 rkuzu_get_database( VALUE obj )
 {
-	return check_database( obj );
+	return CHECK_DATABASE( obj );
 }
 
 
@@ -53,7 +53,7 @@ static void
 rkuzu_database_free( void *ptr )
 {
 	if ( ptr ) {
-		fprintf( stderr, ">>> freeing database %p\n", ptr );
+		DEBUG_GC( ">>> freeing database %p\n", ptr );
 		rkuzu_database *database_s = (rkuzu_database *)ptr;
 
 		kuzu_database_destroy( &database_s->db );
@@ -75,7 +75,7 @@ rkuzu_database_mark( void *ptr )
 {
 	rkuzu_database *database_s = (rkuzu_database *)ptr;
 
-	fprintf( stderr, ">>> marking database %p\n", ptr );
+	DEBUG_GC( ">>> marking database %p\n", ptr );
 
 	rb_gc_mark( database_s->path );
 	rb_gc_mark( database_s->config );
@@ -103,7 +103,7 @@ rkuzu_database_s_allocate( VALUE klass )
 static VALUE
 rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
 {
-	rkuzu_database *ptr = check_database( self );
+	rkuzu_database *ptr = CHECK_DATABASE( self );
 
 	if ( !ptr ) {
 		VALUE path, options, config;
@@ -127,7 +127,7 @@ rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
 			rb_raise( rkuzu_eDatabaseError, "Couldn't create database!" );
 		}
 
-		fprintf( stderr, ">>> allocated database %p\n", ptr );
+		DEBUG_GC( ">>> allocated database %p\n", ptr );
 		RTYPEDDATA_DATA( self ) = ptr;
 
 		ptr->path = rb_obj_freeze( rb_obj_dup(path) );
@@ -153,7 +153,7 @@ rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
 static VALUE
 rkuzu_database_config( VALUE self )
 {
-	rkuzu_database *ptr = check_database( self );
+	rkuzu_database *ptr = CHECK_DATABASE( self );
 	return ptr->config;
 }
 
@@ -170,7 +170,7 @@ rkuzu_database_config( VALUE self )
 static VALUE
 rkuzu_database_path( VALUE self )
 {
-	rkuzu_database *ptr = check_database( self );
+	rkuzu_database *ptr = CHECK_DATABASE( self );
 
 	if ( RSTRING_LEN(ptr->path) == 0 ) {
 		return Qnil;

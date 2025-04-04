@@ -5,8 +5,10 @@
 
 #include "kuzu_ext.h"
 
-#define check_query_summary(self) \
+#define CHECK_QUERY_SUMMARY(self) \
 	((kuzu_query_summary*)rb_check_typeddata((self), &rkuzu_query_summary_type))
+// #define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
+#define DEBUG_GC(msg, ptr)
 
 
 VALUE rkuzu_cKuzuQuerySummary;
@@ -28,7 +30,7 @@ rkuzu_query_summary_free( void *ptr )
 	kuzu_query_summary *query_summary = (kuzu_query_summary *)ptr;
 
 	if ( ptr ) {
-		fprintf( stderr, ">>> freeing query summary %p\n", ptr );
+		DEBUG_GC( ">>> freeing query summary %p\n", ptr );
 		kuzu_query_summary_destroy( query_summary );
 		xfree( ptr );
 	}
@@ -69,8 +71,8 @@ rkuzu_query_summary_s_from_result( VALUE klass, VALUE query_result )
 		rb_raise( rkuzu_eQueryError, "Could not fetch the query summary." );
 	}
 
-	fprintf( stderr, ">>> allocated query summary %p\n", query_summary );
-	DATA_PTR( query_summary_obj ) = query_summary;
+	DEBUG_GC( ">>> allocated query summary %p\n", query_summary );
+	RTYPEDDATA_DATA( query_summary_obj ) = query_summary;
 
 	return query_summary_obj;
 }
@@ -86,7 +88,7 @@ rkuzu_query_summary_s_from_result( VALUE klass, VALUE query_result )
 static VALUE
 rkuzu_query_summary_compiling_time( VALUE self )
 {
-	kuzu_query_summary *summary = check_query_summary( self );
+	kuzu_query_summary *summary = CHECK_QUERY_SUMMARY( self );
 	double result = kuzu_query_summary_get_compiling_time( summary );
 
 	return rb_float_new( result );
@@ -103,7 +105,7 @@ rkuzu_query_summary_compiling_time( VALUE self )
 static VALUE
 rkuzu_query_summary_execution_time( VALUE self )
 {
-	kuzu_query_summary *summary = check_query_summary( self );
+	kuzu_query_summary *summary = CHECK_QUERY_SUMMARY( self );
 	double result = kuzu_query_summary_get_execution_time( summary );
 
 	return rb_float_new( result );

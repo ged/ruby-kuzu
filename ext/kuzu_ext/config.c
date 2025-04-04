@@ -5,7 +5,7 @@
 
 #include "kuzu_ext.h"
 
-#define check_config(self) ((kuzu_system_config*)rb_check_typeddata((self), &rkuzu_config_type))
+#define CHECK_CONFIG(self) ((kuzu_system_config*)rb_check_typeddata((self), &rkuzu_config_type))
 
 
 VALUE rkuzu_cKuzuConfig;
@@ -31,7 +31,7 @@ rkuzu_config_s_allocate( VALUE klass )
 kuzu_system_config *
 rkuzu_get_config( VALUE obj )
 {
-	return check_config( obj );
+	return CHECK_CONFIG( obj );
 }
 
 
@@ -46,7 +46,7 @@ rkuzu_get_config( VALUE obj )
 static VALUE
 rkuzu_config_initialize( VALUE self )
 {
-	kuzu_system_config *ptr = check_config( self );
+	kuzu_system_config *ptr = CHECK_CONFIG( self );
 
 	if ( !ptr ) {
 		ptr = ALLOC( kuzu_system_config );
@@ -60,7 +60,7 @@ rkuzu_config_initialize( VALUE self )
 		ptr->auto_checkpoint      = defaults.auto_checkpoint;
 		ptr->checkpoint_threshold = defaults.checkpoint_threshold;
 
-		DATA_PTR( self ) = ptr;
+		RTYPEDDATA_DATA( self ) = ptr;
 	} else {
 		rb_raise( rb_eRuntimeError, "cannot reinit config" );
 	}
@@ -80,7 +80,7 @@ rkuzu_config_initialize( VALUE self )
 static VALUE
 rkuzu_config_buffer_pool_size( VALUE self )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	return ULONG2NUM( config->buffer_pool_size );
 }
 
@@ -94,7 +94,7 @@ rkuzu_config_buffer_pool_size( VALUE self )
 static VALUE
 rkuzu_config_max_num_threads( VALUE self )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	return ULONG2NUM( config->max_num_threads );
 }
 
@@ -108,7 +108,7 @@ rkuzu_config_max_num_threads( VALUE self )
 static VALUE
 rkuzu_config_enable_compression( VALUE self )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	return config->enable_compression ? Qtrue : Qfalse;
 }
 
@@ -122,7 +122,7 @@ rkuzu_config_enable_compression( VALUE self )
 static VALUE
 rkuzu_config_read_only( VALUE self )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	return config->read_only ? Qtrue : Qfalse;
 }
 
@@ -136,7 +136,7 @@ rkuzu_config_read_only( VALUE self )
 static VALUE
 rkuzu_config_max_db_size( VALUE self )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	return ULONG2NUM( config->max_db_size );
 }
 
@@ -150,7 +150,7 @@ rkuzu_config_max_db_size( VALUE self )
 static VALUE
 rkuzu_config_auto_checkpoint( VALUE self )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	return config->auto_checkpoint ? Qtrue : Qfalse;
 }
 
@@ -164,7 +164,7 @@ rkuzu_config_auto_checkpoint( VALUE self )
 static VALUE
 rkuzu_config_checkpoint_threshold( VALUE self )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	return ULONG2NUM( config->checkpoint_threshold );
 }
 
@@ -178,7 +178,7 @@ rkuzu_config_checkpoint_threshold( VALUE self )
 static VALUE
 rkuzu_config_buffer_pool_size_eq( VALUE self, VALUE value )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	config->buffer_pool_size = NUM2ULONG( value );
 
 	return Qtrue;
@@ -194,7 +194,7 @@ rkuzu_config_buffer_pool_size_eq( VALUE self, VALUE value )
 static VALUE
 rkuzu_config_max_num_threads_eq( VALUE self, VALUE value )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	config->max_num_threads = NUM2ULONG( value );
 
 	return Qtrue;
@@ -210,7 +210,7 @@ rkuzu_config_max_num_threads_eq( VALUE self, VALUE value )
 static VALUE
 rkuzu_config_enable_compression_eq( VALUE self, VALUE value )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	config->enable_compression = RTEST( value );
 
 	return Qtrue;
@@ -226,7 +226,7 @@ rkuzu_config_enable_compression_eq( VALUE self, VALUE value )
 static VALUE
 rkuzu_config_read_only_eq( VALUE self, VALUE value )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	config->read_only = RTEST( value );
 
 	return Qtrue;
@@ -242,7 +242,7 @@ rkuzu_config_read_only_eq( VALUE self, VALUE value )
 static VALUE
 rkuzu_config_max_db_size_eq( VALUE self, VALUE value )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	config->max_db_size = NUM2ULONG( value );
 
 	return Qtrue;
@@ -258,7 +258,7 @@ rkuzu_config_max_db_size_eq( VALUE self, VALUE value )
 static VALUE
 rkuzu_config_auto_checkpoint_eq( VALUE self, VALUE value )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	config->auto_checkpoint = RTEST( value );
 
 	return Qtrue;
@@ -274,7 +274,7 @@ rkuzu_config_auto_checkpoint_eq( VALUE self, VALUE value )
 static VALUE
 rkuzu_config_checkpoint_threshold_eq( VALUE self, VALUE value )
 {
-	kuzu_system_config *config = check_config( self );
+	kuzu_system_config *config = CHECK_CONFIG( self );
 	config->checkpoint_threshold = NUM2ULONG( value );
 
 	return Qtrue;

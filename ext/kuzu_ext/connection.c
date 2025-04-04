@@ -4,9 +4,10 @@
  */
 
 #include "kuzu_ext.h"
-#include <stdbool.h>
 
-#define check_connection(self) ((rkuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
+#define CHECK_CONNECTION(self) ((rkuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
+// #define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
+#define DEBUG_GC(msg, ptr)
 
 
 VALUE rkuzu_cKuzuConnection;
@@ -27,7 +28,7 @@ static const rb_data_type_t rkuzu_connection_type = {
 rkuzu_connection *
 rkuzu_get_connection( VALUE conn_obj )
 {
-	return check_connection( conn_obj );
+	return CHECK_CONNECTION( conn_obj );
 }
 
 
@@ -50,7 +51,7 @@ rkuzu_connection_free( void *ptr )
 	rkuzu_connection *conn_s = (rkuzu_connection *)ptr;
 
 	if ( ptr ) {
-		fprintf( stderr, ">>> freeing connection %p\n", ptr );
+		DEBUG_GC( ">>> freeing connection %p\n", ptr );
 
 		kuzu_connection_destroy( &conn_s->conn );
 
@@ -66,7 +67,7 @@ rkuzu_connection_mark( void *ptr )
 	rkuzu_connection *conn_s = (rkuzu_connection *)ptr;
 
 	if ( ptr ) {
-		fprintf( stderr, ">>> marking connection %p\n", ptr );
+		DEBUG_GC( ">>> marking connection %p\n", ptr );
 		rb_gc_mark( conn_s->database );
 		rb_gc_mark( conn_s->statements );
 		rb_gc_mark( conn_s->queries );
@@ -95,7 +96,7 @@ rkuzu_connection_s_allocate( VALUE klass )
 static VALUE
 rkuzu_connection_initialize( VALUE self, VALUE database )
 {
-	rkuzu_connection *ptr = check_connection( self );
+	rkuzu_connection *ptr = CHECK_CONNECTION( self );
 
 	if ( !ptr ) {
 		rkuzu_database *dbobject = rkuzu_get_database( database );
@@ -107,7 +108,7 @@ rkuzu_connection_initialize( VALUE self, VALUE database )
 			rb_raise( rkuzu_eConnectionError, "Failed to connect!" );
 		}
 
-		fprintf( stderr, ">>> allocated connection %p\n", ptr );
+		DEBUG_GC( ">>> allocated connection %p\n", ptr );
 		RTYPEDDATA_DATA( self ) = ptr;
 
 		ptr->database = database;
@@ -133,7 +134,7 @@ rkuzu_connection_initialize( VALUE self, VALUE database )
 static VALUE
 rkuzu_connection_max_num_threads_for_exec( VALUE self )
 {
-	rkuzu_connection *ptr = check_connection( self );
+	rkuzu_connection *ptr = CHECK_CONNECTION( self );
 	uint64_t count;
 
 	if ( kuzu_connection_get_max_num_thread_for_exec( &ptr->conn, &count ) != KuzuSuccess ) {
@@ -155,7 +156,7 @@ rkuzu_connection_max_num_threads_for_exec( VALUE self )
 static VALUE
 rkuzu_connection_max_num_threads_for_exec_eq( VALUE self, VALUE count )
 {
-	rkuzu_connection *ptr = check_connection( self );
+	rkuzu_connection *ptr = CHECK_CONNECTION( self );
 	uint64_t thread_count = NUM2ULONG( count );
 
 	if ( kuzu_connection_set_max_num_thread_for_exec( &ptr->conn, thread_count ) != KuzuSuccess ) {
@@ -176,7 +177,7 @@ rkuzu_connection_max_num_threads_for_exec_eq( VALUE self, VALUE count )
 static VALUE
 rkuzu_connection_query_timeout_eq( VALUE self, VALUE timeout )
 {
-	rkuzu_connection *ptr = check_connection( self );
+	rkuzu_connection *ptr = CHECK_CONNECTION( self );
 	uint64_t timeout_in_ms = NUM2ULONG( timeout );
 
 	if ( kuzu_connection_set_query_timeout( &ptr->conn, timeout_in_ms ) != KuzuSuccess ) {

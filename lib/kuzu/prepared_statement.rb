@@ -14,8 +14,8 @@ class Kuzu::PreparedStatement
 
 
 	### Execute the statement against its connection and return a Kuzu::Result.
-	def execute( **bound_variables )
-		return self.connection.execute( self, **bound_variables )
+	def execute( **bound_variables, &block )
+		return self.connection.execute( self, **bound_variables, &block )
 	end
 
 
