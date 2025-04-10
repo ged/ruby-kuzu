@@ -4,6 +4,7 @@
  */
 
 #include "kuzu_ext.h"
+#include "ruby/internal/intern/hash.h"
 
 
 #define CONVERT_CHECK( TYPE, CONVERSION ) \
@@ -337,6 +338,35 @@ rkuzu_convert_struct( kuzu_value *value )
 }
 
 
+static VALUE
+rkuzu_convert_map( kuzu_value *map_value )
+{
+	uint64_t count = 0;
+	kuzu_value key, value;
+	kuzu_logical_type key_type, value_type;
+	VALUE key_obj, value_obj;
+	VALUE rval = rb_hash_new();
+
+	assert( kuzu_value_get_map_num_fields(value, &count) == KuzuSuccess );
+
+	for( uint64_t i =  0 ; i < count ; i++ ) {
+		kuzu_value_get_map_key( map_value, i, &key );
+		kuzu_value_get_data_type( &key, &key_type );
+
+		key_obj = rkuzu_convert_logical_kuzu_value_to_ruby( &key_type, &key );
+
+		kuzu_value_get_map_value( map_value, i, &value );
+		kuzu_value_get_data_type( &value, &value_type );
+
+		value_obj = rkuzu_convert_logical_kuzu_value_to_ruby( &value_type, &value );
+
+		rb_hash_aset( rval, key_obj, value_obj );
+	}
+
+	return rval;
+}
+
+
 VALUE
 rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 {
@@ -377,7 +407,7 @@ rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 		case KUZU_LIST: return rkuzu_convert_list( value );
 		case KUZU_STRUCT: return rkuzu_convert_struct( value );
 
-		case KUZU_MAP:
+		case KUZU_MAP: return rkuzu_convert_map( value );
 		case KUZU_UNION:
 		case KUZU_POINTER:
 		case KUZU_UUID:

@@ -19,8 +19,7 @@ class Kuzu::Result
 	### finished when it returns, and the return value of the block will be returned
 	### instead.
 	def self::from_query( connection, query, &block )
-		result = self._from_query( connection, query )
-		return self.wrap_block_result( result, &block )
+		return connection.query( query, &block )
 	end
 
 

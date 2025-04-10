@@ -123,6 +123,57 @@ rkuzu_connection_initialize( VALUE self, VALUE database )
 }
 
 
+static kuzu_query_result
+rkuzu_connection_do_query( VALUE self, VALUE query )
+{
+	rkuzu_connection *conn = CHECK_CONNECTION( self );
+	const char *query_s = StringValueCStr( query );
+	kuzu_query_result result;
+
+	/*
+		TODO Release the GIL
+	*/
+	if ( kuzu_connection_query(&conn->conn, query_s, &result) != KuzuSuccess ) {
+		char *err_detail = kuzu_query_result_get_error_message( &result );
+		char errmsg[ 4096 ] = "\0";
+
+		snprintf( errmsg, 4096, "Could not execute query `%s': %s.", query_s, err_detail );
+
+		kuzu_destroy_string( err_detail );
+		kuzu_query_result_destroy( &result );
+
+		rb_raise( rkuzu_eQueryError, "%s", errmsg );
+	}
+
+	return result;
+}
+
+
+
+static VALUE
+rkuzu_connection__query( VALUE self, VALUE query )
+{
+	kuzu_query_result result = rkuzu_connection_do_query( self, query );
+	return rkuzu_result_from_query( rkuzu_cKuzuResult, self, query, result );
+}
+
+
+/*
+ * call-seq:
+ *    connection.query!( query_string )
+ *
+ * Execute the given +query_string+ and return `true` if the query was
+ * successful.
+ *
+ */
+static VALUE
+rkuzu_connection_query_bang( VALUE self, VALUE query )
+{
+	kuzu_query_result result = rkuzu_connection_do_query( self, query );
+	return kuzu_query_result_is_success( &result ) ? Qtrue : Qfalse;
+}
+
+
 /*
  * call-seq:
  *    connection.max_num_threads_for_exec   -> integer
@@ -204,6 +255,10 @@ rkuzu_init_connection( void )
 	rb_define_alloc_func( rkuzu_cKuzuConnection, rkuzu_connection_s_allocate );
 
 	rb_define_protected_method( rkuzu_cKuzuConnection, "initialize", rkuzu_connection_initialize, 1 );
+
+	rb_define_protected_method( rkuzu_cKuzuConnection, "_query", rkuzu_connection__query, 1 );
+	rb_define_method( rkuzu_cKuzuConnection, "query!", rkuzu_connection_query_bang, 1 );
+	rb_define_alias( rkuzu_cKuzuConnection, "run", "query!" );
 
 	rb_define_method( rkuzu_cKuzuConnection, "max_num_threads_for_exec",
 		rkuzu_connection_max_num_threads_for_exec, 0 );

@@ -123,38 +123,18 @@ rkuzu_result_s_allocate( VALUE klass )
 }
 
 
-// Inner query constructor
-static VALUE
-rkuzu_result_s__from_query( VALUE klass, VALUE connection, VALUE query )
+VALUE
+rkuzu_result_from_query( VALUE klass, VALUE connection, VALUE query, kuzu_query_result result )
 {
-	rkuzu_connection *conn = rkuzu_get_connection( connection );
-	const char *query_s = StringValueCStr( query );
-	rkuzu_query_result *result = rkuzu_result_alloc();
-
-	/*
-		TODO Release the GIL
-	*/
-	if ( kuzu_connection_query(&conn->conn, query_s, &result->result) != KuzuSuccess ) {
-		char *err_detail = kuzu_query_result_get_error_message( &result->result );
-		char errmsg[ 4096 ] = "\0";
-
-		snprintf( errmsg, 4096, "Could not execute query `%s': %s.", query_s, err_detail );
-
-		kuzu_destroy_string( err_detail );
-		kuzu_query_result_destroy( &result->result );
-		xfree( result );
-		result = NULL;
-
-		rb_raise( rkuzu_eQueryError, "%s", errmsg );
-	}
-
-	DEBUG_GC( ">>> allocated result %p\n", result );
+	rkuzu_query_result *ptr = rkuzu_result_alloc();
+	DEBUG_GC( ">>> allocated result %p\n", ptr );
 
 	VALUE result_obj = rb_class_new_instance( 0, 0, klass );
-	RTYPEDDATA_DATA( result_obj ) = result;
+	RTYPEDDATA_DATA( result_obj ) = ptr;
 
-	result->connection = connection;
-	result->query = query;
+	ptr->connection = connection;
+	ptr->query = query;
+	ptr->result = result;
 
 	return result_obj;
 }
@@ -532,7 +512,6 @@ rkuzu_init_result( void )
 	rb_define_alloc_func( rkuzu_cKuzuResult, rkuzu_result_s_allocate );
 	rb_undef_method( CLASS_OF(rkuzu_cKuzuResult), "new" );
 
-	rb_define_singleton_method( rkuzu_cKuzuResult, "_from_query", rkuzu_result_s__from_query, 2 );
 	rb_define_singleton_method( rkuzu_cKuzuResult, "_from_prepared_statement",
 		rkuzu_result_s__from_prepared_statement, 1 );
 	rb_define_singleton_method( rkuzu_cKuzuResult, "from_next_set", rkuzu_result_s_from_next_set, 1 );

@@ -14,20 +14,13 @@ class Kuzu::Connection
 	log_to :kuzu
 
 
-	### Executes the given +query_string+ and returns the result.
+	### Execute the given +query_string+ via the connection and return the
+	### Kuzu::Result. If a block is given, the result will instead be yielded to it,
+	### finished when it returns, and the return value of the block will be returned
+	### instead.
 	def query( query_string, &block )
-		return Kuzu::Result.from_query( self, query_string, &block )
-	end
-
-
-	### Execute the given +query_string+ and automatically finish the result without
-	### returning. Raises an error if the query isn't successful.
-	def run( query_string )
-		self.query( query_string ) do |result|
-			raise "query failed: %s" % [ result.error_message ] unless result.success?
-		end
-
-		return nil
+		result = self._query( query_string )
+		return Kuzu::Result.wrap_block_result( result, &block )
 	end
 
 
