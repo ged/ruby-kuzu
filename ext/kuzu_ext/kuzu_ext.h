@@ -118,5 +118,6 @@ extern rkuzu_query_result *rkuzu_get_result _ ((VALUE));
 extern VALUE rkuzu_convert_kuzu_value_to_ruby _ ((kuzu_data_type_id, kuzu_value *));
 extern VALUE rkuzu_convert_logical_kuzu_value_to_ruby _ ((kuzu_logical_type *, kuzu_value *));
 extern VALUE rkuzu_result_from_query _ ((VALUE, VALUE, VALUE, kuzu_query_result));
+extern VALUE rkuzu_result_from_prepared_statement _ ((VALUE, VALUE, VALUE, kuzu_query_result));
 
 #endif /* end of include guard: KUZU_EXT_H_AA9CC4A5 */

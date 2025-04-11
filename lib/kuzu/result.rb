@@ -27,9 +27,7 @@ class Kuzu::Result
 	### the result will instead be yielded to it, finished when it returns, and the
 	### return value of the block will be returned instead.
 	def self::from_prepared_statement( statement, &block )
-		result = self._from_prepared_statement( statement )
-
-		return self.wrap_block_result( result, &block )
+		return statement.execute( &block )
 	end
 
 

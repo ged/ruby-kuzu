@@ -14,8 +14,21 @@ class Kuzu::PreparedStatement
 
 
 	### Execute the statement against its connection and return a Kuzu::Result.
+	### If a +block+ is supplied, the result will be passed to it instead,
+	### then finished automatically, and the return value of the block returned
+	### instead.
 	def execute( **bound_variables, &block )
-		return self.connection.execute( self, **bound_variables, &block )
+		self.bind( **bound_variables )
+		result = self._execute
+		return Kuzu::Result.wrap_block_result( result, &block )
+	end
+
+
+	### Execute the statement against its connection and return `true` if it
+	### succeeded.
+	def execute!( **bound_variables )
+		self.bind( **bound_variables )
+		return self._execute!
 	end
 
 

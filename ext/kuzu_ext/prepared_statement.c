@@ -135,6 +135,52 @@ rkuzu_prepared_statement_initialize( VALUE self, VALUE connection, VALUE query )
 }
 
 
+// Inner prepared statement constructor
+static kuzu_query_result
+rkuzu_prepared_statement_do_execute( VALUE self )
+{
+	rkuzu_prepared_statement *stmt = CHECK_PREPARED_STATEMENT( self );
+	VALUE connection = stmt->connection;
+	rkuzu_connection *conn = rkuzu_get_connection( connection );
+	kuzu_query_result result;
+
+	/*
+		TODO Release the GIL
+	*/
+	if ( kuzu_connection_execute(&conn->conn, &stmt->statement, &result) != KuzuSuccess ) {
+		char *err_detail = kuzu_query_result_get_error_message( &result );
+		char errmsg[ 4096 ] = "\0";
+
+		snprintf( errmsg, 4096, "Could not execute prepared statement: %s.", err_detail );
+
+		kuzu_destroy_string( err_detail );
+		kuzu_query_result_destroy( &result );
+
+		rb_raise( rkuzu_eQueryError, "%s", errmsg );
+	}
+
+	return result;
+}
+
+
+static VALUE
+rkuzu_prepared_statement__execute( VALUE self )
+{
+	rkuzu_prepared_statement *stmt = CHECK_PREPARED_STATEMENT( self );
+	kuzu_query_result result = rkuzu_prepared_statement_do_execute( self );
+
+	return rkuzu_result_from_prepared_statement( rkuzu_cKuzuResult, stmt->connection, self, result );
+}
+
+
+static VALUE
+rkuzu_prepared_statement__execute_bang( VALUE self )
+{
+	kuzu_query_result result = rkuzu_prepared_statement_do_execute( self );
+	return kuzu_query_result_is_success( &result ) ? Qtrue : Qfalse;
+}
+
+
 /*
  * call-seq:
  *    statement.success?   -> true or false
@@ -292,6 +338,10 @@ rkuzu_init_prepared_statement( void )
 
 	rb_define_protected_method( rkuzu_cKuzuPreparedStatement, "initialize",
 		rkuzu_prepared_statement_initialize, 2 );
+	rb_define_protected_method( rkuzu_cKuzuPreparedStatement, "_execute",
+		rkuzu_prepared_statement__execute, 0 );
+	rb_define_protected_method( rkuzu_cKuzuPreparedStatement, "_execute!",
+		rkuzu_prepared_statement__execute_bang, 0 );
 
 	rb_define_method( rkuzu_cKuzuPreparedStatement, "connection",
 		rkuzu_prepared_statement_connection, 0 );

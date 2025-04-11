@@ -34,7 +34,7 @@ class Kuzu::Connection
 	### the given +bound_variables+ to it.
 	def execute( statement, **bound_variables, &block )
 		statement.bind( **bound_variables )
-		return Kuzu::Result.from_prepared_statement( statement, &block )
+		return statement.execute
 	end
 
 
