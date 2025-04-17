@@ -47,6 +47,7 @@ module Kuzu
 	### `auto_checkpoint` is true.
 	def self::database( path='', **config )
 		path = '' if path.nil? || path == :memory
+		self.log.info "Opening database %p" % [ path ]
 		return Kuzu::Database.new( path.to_s, **config )
 	end
 

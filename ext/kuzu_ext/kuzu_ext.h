@@ -84,6 +84,9 @@ extern VALUE rkuzu_cKuzuConnection;
 extern VALUE rkuzu_cKuzuPreparedStatement;
 extern VALUE rkuzu_cKuzuResult;
 extern VALUE rkuzu_cKuzuQuerySummary;
+extern VALUE rkuzu_cKuzuNode;
+extern VALUE rkuzu_cKuzuRecursiveRel;
+extern VALUE rkuzu_cKuzuRel;
 
 // Exception types
 extern VALUE rkuzu_eError;
@@ -108,6 +111,9 @@ extern void rkuzu_init_connection _ ((void));
 extern void rkuzu_init_prepared_statement _ ((void));
 extern void rkuzu_init_result _ ((void));
 extern void rkuzu_init_query_summary _ ((void));
+extern void rkuzu_init_node _ ((void));
+extern void rkuzu_init_rel _ ((void));
+extern void rkuzu_init_recursive_rel _ ((void));
 
 extern rkuzu_database *rkuzu_get_database _ ((VALUE));
 extern kuzu_system_config *rkuzu_get_config _ ((VALUE));
@@ -117,6 +123,7 @@ extern rkuzu_query_result *rkuzu_get_result _ ((VALUE));
 
 extern VALUE rkuzu_convert_kuzu_value_to_ruby _ ((kuzu_data_type_id, kuzu_value *));
 extern VALUE rkuzu_convert_logical_kuzu_value_to_ruby _ ((kuzu_logical_type *, kuzu_value *));
+extern VALUE rkuzu_value_to_ruby _ (( kuzu_value * ));
 extern VALUE rkuzu_result_from_query _ ((VALUE, VALUE, VALUE, kuzu_query_result));
 extern VALUE rkuzu_result_from_prepared_statement _ ((VALUE, VALUE, VALUE, kuzu_query_result));
 

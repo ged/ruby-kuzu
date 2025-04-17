@@ -97,10 +97,11 @@ class Kuzu::Result
 		if self.finished?
 			details = " (finished)"
 		else
-			details = " success: %p (%d tuples of %d columns)" % [
+			details = " success: %p (%d tuples of %d columns): %s" % [
 				self.success?,
 				self.num_tuples,
 				self.num_columns,
+				self.to_s,
 			]
 		end
 

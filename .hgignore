@@ -11,3 +11,4 @@ spec/\.status
 \.nim$
 \.tsv$
 imdb/
+history\.txt$

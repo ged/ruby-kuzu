@@ -152,4 +152,7 @@ Init_kuzu_ext( void )
 	rkuzu_init_prepared_statement();
 	rkuzu_init_result();
 	rkuzu_init_query_summary();
+	rkuzu_init_node();
+	rkuzu_init_rel();
+	rkuzu_init_recursive_rel();
 }
