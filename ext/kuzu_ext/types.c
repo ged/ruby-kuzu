@@ -257,7 +257,23 @@ rkuzu_convert_string( kuzu_value *value )
 	rval = rb_enc_str_new( result_string, strnlen(result_string, CHAR_MAX), rb_utf8_encoding() );
 	kuzu_destroy_string( result_string );
 
-	return rval;
+	return rb_obj_freeze( rval );
+}
+
+
+static VALUE
+rkuzu_convert_uuid( kuzu_value *value )
+{
+	char *result_string;
+	VALUE rval;
+
+	CONVERT_CHECK( KUZU_UUID, kuzu_value_get_uuid(value, &result_string) );
+
+	rval = rb_enc_str_new( result_string, strnlen(result_string, CHAR_MAX), rb_utf8_encoding() );
+	rb_funcall( rval, rb_intern("downcase!"), 0 );
+	kuzu_destroy_string( result_string );
+
+	return rb_obj_freeze( rval );
 }
 
 
@@ -552,6 +568,7 @@ rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 		case KUZU_DECIMAL: return rkuzu_convert_decimal( value );
 
 		case KUZU_STRING: return rkuzu_convert_string( value );
+		case KUZU_UUID: return rkuzu_convert_uuid( value );
 
 		case KUZU_INTERVAL: return rkuzu_convert_interval( value );
 		case KUZU_BLOB: return rkuzu_convert_blob( value );
@@ -570,7 +587,6 @@ rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 
 		case KUZU_UNION:
 		case KUZU_POINTER:
-		case KUZU_UUID:
 
 		// Fallthrough
 		default:

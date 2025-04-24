@@ -2,6 +2,7 @@
 
 require_relative '../spec_helper'
 
+require 'uuid'
 require 'kuzu'
 
 
@@ -29,7 +30,9 @@ RSpec.describe( "data types" ) do
 		expect( x.year ).to eq( 1970 )
 		expect( x.month ).to eq( 1 )
 		expect( x.day ).to eq( 1 )
-	end
+
+		result.finish
+end
 
 
 	it "converts STRUCT values to OpenStructs" do
@@ -214,11 +217,54 @@ RSpec.describe( "data types" ) do
 	end
 
 
+	it "converts UNIONs to something" do
+		connection.run( <<~END_OF_SCHEMA )
+			CREATE NODE TABLE demo(a SERIAL, b UNION(num INT64, str STRING), PRIMARY KEY(a));
+			COPY demo from "data/test/demo.csv";
+		END_OF_SCHEMA
+		result = connection.query( "MATCH (d:demo) RETURN d.b;" )
+
+		expect( result ).to be_success
+		expect( result.to_s ).to eq( "foobunkle" )
+
+		d_b = result.first['d.b']
+		expect( d_b ).to eq( 1 )
+		expect( d_b.tag ).to eq( 'num' )
+
+		result.finish
+	end
+
+
 	it "converts between nil and NULL" do
 		stmt = connection.prepare( "RETURN $the_value AS value;" )
 		result = stmt.execute( the_value: nil )
 
 		expect( result.first ).to eq( {'value' => nil} )
+
+		result.finish
 	end
+
+
+	it "converts UUIDs to Strings" do
+		result = connection.query( "RETURN UUID('A0EEBC99-9C0B-4EF8-BB6D-6BB9BD380A11') as u;" )
+		uuid = result.first['u']
+
+		expect( uuid ).to be_a( String )
+		expect( uuid ).to eq( 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11' )
+
+		result.finish
+	end
+
+
+	it "converts DECIMAL types to Float objects" do
+		result = connection.query( %{RETURN CAST(127.3, "DECIMAL(5, 2)") AS d;} )
+		rval = result.first['d']
+
+		expect( rval ).to be_a( Float )
+		expect( rval ).to eq( 127.3 )
+
+		result.finish
+	end
+
 
 end

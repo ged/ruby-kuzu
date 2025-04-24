@@ -7,4 +7,3 @@ group :development do
 	gem 'rdoc-generator-sixfish', '~> 0.3'
 	gem 'ruby-lsp', '~> 0.23'
 end
-
