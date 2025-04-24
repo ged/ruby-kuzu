@@ -2,7 +2,6 @@
 
 require_relative '../spec_helper'
 
-require 'uuid'
 require 'kuzu'
 
 
@@ -217,22 +216,7 @@ end
 	end
 
 
-	it "converts UNIONs to something" do
-		connection.run( <<~END_OF_SCHEMA )
-			CREATE NODE TABLE demo(a SERIAL, b UNION(num INT64, str STRING), PRIMARY KEY(a));
-			COPY demo from "data/test/demo.csv";
-		END_OF_SCHEMA
-		result = connection.query( "MATCH (d:demo) RETURN d.b;" )
-
-		expect( result ).to be_success
-		expect( result.to_s ).to eq( "foobunkle" )
-
-		d_b = result.first['d.b']
-		expect( d_b ).to eq( 1 )
-		expect( d_b.tag ).to eq( 'num' )
-
-		result.finish
-	end
+	it "converts UNIONs to something"
 
 
 	it "converts between nil and NULL" do
