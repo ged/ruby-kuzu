@@ -3,11 +3,13 @@
  *
  */
 
+#include "kuzu.h"
 #include "kuzu_ext.h"
+#include "ruby/thread.h"
 
 #define CHECK_CONNECTION(self) ((rkuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
-// #define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
-#define DEBUG_GC(msg, ptr)
+#define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
+// #define DEBUG_GC(msg, ptr)
 
 
 VALUE rkuzu_cKuzuConnection;
@@ -123,17 +125,54 @@ rkuzu_connection_initialize( VALUE self, VALUE database )
 }
 
 
+struct query_call {
+	kuzu_connection *conn;
+	const char *query_s;
+	kuzu_query_result *result;
+};
+
+
+static void *
+rkuzu_connection_do_query_without_gvl( void *ptr )
+{
+	struct query_call *qcall = (struct query_call *)ptr;
+	kuzu_state state;
+
+	state = kuzu_connection_query( qcall->conn, qcall->query_s, qcall->result );
+
+	return (void *)state;
+}
+
+
+static void
+rkuzu_connection_cancel_query( void *ptr )
+{
+	kuzu_connection *conn = (kuzu_connection *)ptr;
+	kuzu_connection_interrupt( conn );
+}
+
+
 static kuzu_query_result
 rkuzu_connection_do_query( VALUE self, VALUE query )
 {
 	rkuzu_connection *conn = CHECK_CONNECTION( self );
 	const char *query_s = StringValueCStr( query );
 	kuzu_query_result result;
+	kuzu_state query_state;
+	struct query_call qcall;
+	void *result_ptr;
 
-	/*
-		TODO Release the GIL
-	*/
-	if ( kuzu_connection_query(&conn->conn, query_s, &result) != KuzuSuccess ) {
+	qcall.conn = &conn->conn;
+	qcall.query_s = query_s;
+	qcall.result = &result;
+
+	result_ptr = rb_thread_call_without_gvl(
+		rkuzu_connection_do_query_without_gvl, (void *)&qcall,
+		rkuzu_connection_cancel_query, (void *)&conn->conn );
+
+	query_state = (kuzu_state)result_ptr;
+
+	if ( query_state != KuzuSuccess ) {
 		char *err_detail = kuzu_query_result_get_error_message( &result );
 		char errmsg[ 4096 ] = "\0";
 
@@ -145,7 +184,7 @@ rkuzu_connection_do_query( VALUE self, VALUE query )
 		rb_raise( rkuzu_eQueryError, "%s", errmsg );
 	}
 
-	return result;
+	return *qcall.result;
 }
 
 

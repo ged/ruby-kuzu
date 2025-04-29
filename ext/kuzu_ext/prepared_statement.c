@@ -135,6 +135,33 @@ rkuzu_prepared_statement_initialize( VALUE self, VALUE connection, VALUE query )
 }
 
 
+struct execute_call {
+	kuzu_connection *conn;
+	kuzu_prepared_statement *stmt;
+	kuzu_query_result *result;
+};
+
+
+static void *
+rkuzu_connection_do_execute_without_gvl( void *ptr )
+{
+	struct execute_call *qcall = (struct execute_call *)ptr;
+	kuzu_state state;
+
+	state = kuzu_connection_execute( qcall->conn, qcall->stmt, qcall->result );
+
+	return (void *)state;
+}
+
+
+static void
+rkuzu_connection_cancel_execute( void *ptr )
+{
+	kuzu_connection *conn = (kuzu_connection *)ptr;
+	kuzu_connection_interrupt( conn );
+}
+
+
 // Inner prepared statement constructor
 static kuzu_query_result
 rkuzu_prepared_statement_do_execute( VALUE self )
@@ -143,11 +170,20 @@ rkuzu_prepared_statement_do_execute( VALUE self )
 	VALUE connection = stmt->connection;
 	rkuzu_connection *conn = rkuzu_get_connection( connection );
 	kuzu_query_result result;
+	struct execute_call qcall;
+	kuzu_state execute_state;
+	void *result_ptr;
 
-	/*
-		TODO Release the GIL
-	*/
-	if ( kuzu_connection_execute(&conn->conn, &stmt->statement, &result) != KuzuSuccess ) {
+	qcall.conn = &conn->conn;
+	qcall.stmt = &stmt->statement;
+	qcall.result = &result;
+
+	result_ptr = rb_thread_call_without_gvl(
+		rkuzu_connection_do_execute_without_gvl, (void *)&qcall,
+		rkuzu_connection_cancel_execute, (void *)&conn->conn );
+	execute_state = (kuzu_state)result_ptr;
+
+	if ( execute_state != KuzuSuccess ) {
 		char *err_detail = kuzu_query_result_get_error_message( &result );
 		char errmsg[ 4096 ] = "\0";
 
@@ -159,7 +195,7 @@ rkuzu_prepared_statement_do_execute( VALUE self )
 		rb_raise( rkuzu_eQueryError, "%s", errmsg );
 	}
 
-	return result;
+	return *qcall.result;
 }
 
 
