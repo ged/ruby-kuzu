@@ -8,8 +8,8 @@
 #include "ruby/thread.h"
 
 #define CHECK_CONNECTION(self) ((rkuzu_connection *)rb_check_typeddata((self), &rkuzu_connection_type))
-#define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
-// #define DEBUG_GC(msg, ptr)
+// #define DEBUG_GC(msg, ptr) fprintf( stderr, msg, ptr )
+#define DEBUG_GC(msg, ptr)
 
 
 VALUE rkuzu_cKuzuConnection;

@@ -33,6 +33,10 @@ module Kuzu::SpecHelpers
 			Kuzu::SpecHelpers.cleanup_tmpfiles
 		end
 
+		context.before( :each ) do
+			GC.start
+		end
+
 	end
 
 
@@ -95,5 +99,3 @@ RSpec.configure do |config|
 	config.include( Kuzu::SpecHelpers )
 	config.include( Loggability::SpecHelpers )
 end
-
-
