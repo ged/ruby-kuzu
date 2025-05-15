@@ -18,6 +18,46 @@ docs
 A Ruby binding for the Kùzu embedded graph database.
 
 
+### Creating A Database and Connecting To It
+
+To create an in-memory database:
+
+    database = Kuzu.database
+    # => #<Kuzu::Database:0x000000012917ec68 path:nil read-only:false>
+
+Or explicitly via an empty string:
+
+    database = Kuzu.database( '' )
+    # => #<Kuzu::Database:0x000000012144edb0 path:nil read-only:false>
+
+If you pass a non-empty string, it is assumed to be the path to a database:
+
+    database = Kuzu.database( 'path/to/mydb' )
+    # => #<Kuzu::Database:0x0000000121624d10 path:"path/to/mydb" read-only:false>
+
+There's also support for passing configuration options to the database
+handle as keyword arguments to the `.database` method:
+
+    database = Kuzu.database( 'mydb', read_only: true )
+    # => #<Kuzu::Database:0x00000001227aa5a8 path:"mydb" read-only:true>
+
+Once you have a Kuzu::Database object, you need a connection to actually use it:
+
+    conn = db.connect
+    # => #<Kuzu::Connection:0x0000000122a41f28 threads:16>
+
+
+
+### Querying
+
+### Results
+
+### Prepared Statements
+
+### Datatypes
+
+
+
 ## Examples
 
     require 'kuzu'
@@ -47,7 +87,7 @@ A Ruby binding for the Kùzu embedded graph database.
 ## Requirements
 
 - Ruby >= 3
-- Kuzu >= 0.7
+- Kuzu >= 0.9
 
 
 ## Install
@@ -82,4 +122,3 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
