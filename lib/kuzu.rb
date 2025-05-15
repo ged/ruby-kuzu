@@ -75,5 +75,3 @@ module Kuzu
 
 end # module Kuzu
 
-# Fancy alias
-Kùzu = Kuzu
