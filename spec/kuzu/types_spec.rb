@@ -31,7 +31,7 @@ RSpec.describe( "data types" ) do
 		expect( x.day ).to eq( 1 )
 
 		result.finish
-end
+	end
 
 
 	it "converts STRUCT values to OpenStructs" do
