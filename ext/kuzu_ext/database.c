@@ -97,7 +97,7 @@ rkuzu_database_s_allocate( VALUE klass )
  * call-seq:
  *    database.new( path, **options )   -> database
  *
- * Create a new Datbase using the given +path+ and +options+.
+ * Create a new Database using the given +path+ and +options+.
  *
  */
 static VALUE
@@ -112,6 +112,7 @@ rkuzu_database_initialize( int argc, VALUE *argv, VALUE self )
 		char *database_path;
 
 		rb_scan_args( argc, argv, "1:", &path, &options );
+		if ( options == Qnil ) options = rb_hash_new();
 		config_argv[0] = options;
 		config = rb_funcallv_public_kw( rkuzu_cKuzuConfig, rb_intern("from_options"), 1,
 			config_argv, RB_PASS_KEYWORDS );
