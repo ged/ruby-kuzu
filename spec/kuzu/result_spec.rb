@@ -78,12 +78,31 @@ RSpec.describe( Kuzu::Result ) do
 			expect( result ).to be_success
 			expect( result.num_columns ).to eq( 3 )
 			expect( result.column_names ).to eq([ "a.name", "b.name", "f.since" ])
-			expect( result.each.to_a ).to eq([
+			expect( result.to_a ).to eq([
 				{ "a.name" => "Adam", "b.name" => "Karissa", "f.since" => 2020 },
 				{ "a.name" => "Adam", "b.name" => "Zhang", "f.since" => 2020 },
 				{ "a.name" => "Karissa", "b.name" => "Zhang", "f.since" => 2021 },
 				{ "a.name" => "Zhang", "b.name" => "Noura", "f.since" => 2022 }
 			])
+
+			result.finish
+		end
+
+
+		it "can fetch individual result tuples via the index operator" do
+			setup_demo_db()
+
+			result = described_class.from_query( connection, <<~END_OF_QUERY )
+				MATCH ( a:User )-[ f:Follows ]->( b:User )
+			    RETURN a.name, b.name, f.since;
+			END_OF_QUERY
+
+			tuples = result.to_a
+
+			expect( result[0] ).to eq( tuples[0] )
+			expect( result[1] ).to eq( tuples[1] )
+			expect( result[2] ).to eq( tuples[2] )
+			expect( result[3] ).to eq( tuples[3] )
 
 			result.finish
 		end
@@ -97,7 +116,7 @@ RSpec.describe( Kuzu::Result ) do
 			END_QUERY
 
 			rval = result.each_set.flat_map do |subset|
-				subset.each.to_a
+				subset.to_a
 			end
 
 			expect( rval ).to eq([

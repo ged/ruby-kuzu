@@ -74,6 +74,19 @@ class Kuzu::Result
 	end
 
 
+	### Return the tuples from the current result set. This method is memoized
+	### for efficiency.
+	def tuples
+		return @_tuples ||= self.to_a
+	end
+
+
+	### Index operator: fetch the tuple at +index+ of the current result set.
+	def []( index )
+		return self.tuples[ index ]
+	end
+
+
 	### Return the next result set after this one as a Kuzu::Result, or `nil`if
 	### there is no next set.
 	def next_set
@@ -116,6 +129,7 @@ class Kuzu::Result
 
 	### Return an Enumerator that yields result tuples as Hashes.
 	def tuple_enum
+		self.log.debug "Fetching a tuple Enumerator"
 		return Enumerator.new do |yielder|
 			self.reset_iterator
 			while self.has_next?
@@ -126,7 +140,9 @@ class Kuzu::Result
 	end
 
 
+	### Return an Enumerator that yields a Result for each set.
 	def next_set_enum
+		self.log.debug "Fetching a result set Enumerator"
 		result = self
 		return Enumerator.new do |yielder|
 			while result
