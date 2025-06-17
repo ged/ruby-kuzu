@@ -18,6 +18,8 @@ class Kuzu::PreparedStatement
 	### then finished automatically, and the return value of the block returned
 	### instead.
 	def execute( **bound_variables, &block )
+		self.log.debug "Executing statement:\n%s\nwith variables:\n%p" %
+			[ self.query, bound_variables ]
 		self.bind( **bound_variables )
 		result = self._execute
 		return Kuzu::Result.wrap_block_result( result, &block )

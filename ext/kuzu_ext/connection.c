@@ -278,6 +278,21 @@ rkuzu_connection_query_timeout_eq( VALUE self, VALUE timeout )
 }
 
 
+/*
+ * call-seq:
+ *    connection.database              -> database
+ *
+ * Return the database object the connection belongs to (a Kuzu::Database).
+ *
+ */
+static VALUE
+rkuzu_connection_database( VALUE self )
+{
+	rkuzu_connection *ptr = CHECK_CONNECTION( self );
+	return ptr->database;
+}
+
+
 
 /*
  * Document-class: Kuzu::Connection
@@ -305,6 +320,9 @@ rkuzu_init_connection( void )
 		rkuzu_connection_max_num_threads_for_exec_eq, 1 );
 
 	rb_define_method( rkuzu_cKuzuConnection, "query_timeout=", rkuzu_connection_query_timeout_eq, 1 );
+
+	rb_define_method( rkuzu_cKuzuConnection, "database", rkuzu_connection_database, 0 );
+	rb_define_alias( rkuzu_cKuzuConnection, "db", "database" );
 
 	rb_require( "kuzu/connection" );
 }
