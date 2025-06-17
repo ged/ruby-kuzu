@@ -554,6 +554,9 @@ rkuzu_convert_kuzu_value_to_ruby( kuzu_data_type_id type_id, kuzu_value *value )
 		case KUZU_UINT8: return rkuzu_convert_uint8( value );
 		case KUZU_INT128: return rkuzu_convert_int128( value );
 
+		// Serials just come out as int64s
+		case KUZU_SERIAL: return rkuzu_convert_int64( value );
+
 		case KUZU_DOUBLE: return rkuzu_convert_double( value );
 		case KUZU_FLOAT: return rkuzu_convert_float( value );
 

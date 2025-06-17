@@ -251,4 +251,15 @@ RSpec.describe( "data types" ) do
 	end
 
 
+	it "converts SERIAL types to Integer objects" do
+		result = connection.query( %{RETURN CAST(133, "SERIAL") AS s;} )
+		rval = result.first['s']
+
+		expect( rval ).to be_an( Integer )
+		expect( rval ).to eq( 133 )
+
+		result.finish
+	end
+
+
 end
