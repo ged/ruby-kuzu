@@ -21,7 +21,7 @@ RSpec.describe( Kuzu::Database ) do
 
 
 	it "can be created read-only from an existing on-disk database" do
-		original = described_class.new( db_path.to_s )
+		_original = described_class.new( db_path.to_s )
 
 		ro = described_class.new( db_path.to_s, read_only: true )
 		expect( ro ).to be_read_only

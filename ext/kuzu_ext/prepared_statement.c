@@ -181,7 +181,11 @@ rkuzu_prepared_statement_do_execute( VALUE self )
 	result_ptr = rb_thread_call_without_gvl(
 		rkuzu_connection_do_execute_without_gvl, (void *)&qcall,
 		rkuzu_connection_cancel_execute, (void *)&conn->conn );
+
+	_Pragma("GCC diagnostic push")
+	_Pragma("GCC diagnostic ignored \"-Wvoid-pointer-to-enum-cast\"")
 	execute_state = (kuzu_state)result_ptr;
+	_Pragma("GCC diagnostic pop")
 
 	if ( execute_state != KuzuSuccess ) {
 		char *err_detail = kuzu_query_result_get_error_message( &result );
