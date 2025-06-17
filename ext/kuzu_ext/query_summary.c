@@ -51,7 +51,7 @@ rkuzu_query_summary_s_allocate( VALUE klass )
  * call-seq:
  *    Kuzu::QuerySummary.from_result( result )   -> query_summary
  *
- * Return a Kuzu::QuerySummary from a Kuzu::QueryResult.
+ * Return a Kuzu::QuerySummary from a Kuzu::Result.
  *
  */
 static VALUE
