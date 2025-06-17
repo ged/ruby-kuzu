@@ -24,6 +24,7 @@ lib/kuzu/recursive_rel.rb
 lib/kuzu/rel.rb
 lib/kuzu/result.rb
 spec/kuzu/config_spec.rb
+spec/kuzu/connection_spec.rb
 spec/kuzu/database_spec.rb
 spec/kuzu/prepared_statement_spec.rb
 spec/kuzu/query_summary_spec.rb

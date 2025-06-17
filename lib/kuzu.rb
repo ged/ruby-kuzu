@@ -11,7 +11,7 @@ module Kuzu
 
 
 	# Library version
-	VERSION = '0.0.3'
+	VERSION = '0.1.0'
 
 
 	# Set up a logger for Kuzu classes

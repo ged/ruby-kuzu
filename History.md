@@ -1,6 +1,14 @@
 # Release History for ruby-kuzu
 
 ---
+## v0.1.0 [2025-06-17] Michael Granger <ged@FaerieMUD.org>
+
+Enhancements:
+
+- Add Connection#database
+- Squelch some warnings
+- Add Result#tuples and Result#[].
+
 
 ## v0.0.3 [2025-05-22] Michael Granger <ged@FaerieMUD.org>
 
