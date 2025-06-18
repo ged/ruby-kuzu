@@ -1,5 +1,6 @@
 # -*- ruby -*-
 
+require 'pathname'
 require 'loggability'
 
 require_relative 'kuzu_ext'
@@ -12,6 +13,9 @@ module Kuzu
 
 	# Library version
 	VERSION = '0.1.0'
+
+	# Name of the file to look for when testing a path to see if it's a Kuzu database.
+	KUZU_CATALOG_FILENAME = 'data.kz'
 
 
 	# Set up a logger for Kuzu classes
@@ -50,6 +54,17 @@ module Kuzu
 		self.log.info "Opening database %p" % [ path ]
 		return Kuzu::Database.new( path.to_s, **config )
 	end
+
+
+	### Returns +true+ if the specified +pathname+ appears to be a valid Kuzu database.
+	def self::is_database?( pathname )
+		pathname = Pathname( pathname )
+		return false unless pathname.directory?
+
+		testfile = pathname / KUZU_CATALOG_FILENAME
+		return testfile.exist?
+	end
+	singleton_class.alias_method( :is_kuzu_database?, :is_database? )
 
 
 	### Return a Time object from the given +milliseconds+ epoch time.

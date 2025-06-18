@@ -54,7 +54,7 @@ module Kuzu::SpecHelpers
 
 	### Return a Pathname pointing to a temporary file.
 	def tmpfile_pathname( filetype='spec' )
-		Pathname(Dir::Tmpname.create(['kuzu-', '-test-' + filetype]) {})
+		return Pathname( Dir::Tmpname.create(['kuzu-', '-test-' + filetype]) {} )
 	end
 
 

@@ -1,16 +1,16 @@
 # -*- encoding: utf-8 -*-
-# stub: ruby-kuzu 0.2.0.pre.20250617154614 ruby lib
+# stub: ruby-kuzu 0.2.0.pre.20250618075733 ruby lib
 # stub: ext/kuzu_ext/extconf.rb
 
 Gem::Specification.new do |s|
   s.name = "ruby-kuzu".freeze
-  s.version = "0.2.0.pre.20250617154614".freeze
+  s.version = "0.2.0.pre.20250618075733".freeze
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.metadata = { "bug_tracker_uri" => "https://todo.sr.ht/~ged/Ruby-Kuzu", "changelog_uri" => "https://deveiate.org/code/ruby-kuzu/History_md.html", "documentation_uri" => "https://deveiate.org/code/ruby-kuzu", "homepage_uri" => "https://sr.ht/~ged/Ruby-Kuzu", "source_uri" => "https://hg.sr.ht/~ged/Ruby-Kuzu" } if s.respond_to? :metadata=
   s.require_paths = ["lib".freeze]
   s.authors = ["Michael Granger".freeze]
-  s.date = "2025-06-17"
+  s.date = "2025-06-18"
   s.description = "A Ruby binding for the K\u00F9zu embedded graph database.".freeze
   s.email = ["ged@FaerieMUD.org".freeze]
   s.extensions = ["ext/kuzu_ext/extconf.rb".freeze]

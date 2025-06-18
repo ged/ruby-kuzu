@@ -52,4 +52,26 @@ RSpec.describe( Kuzu ) do
 		expect( filename ).to be_a_directory
 	end
 
+
+	it "can tell whether a string looks like a path to a Kuzu database" do
+		path = spec_tmpdir + 'spec_db'
+
+		expect {
+			described_class.database( path )
+		}.to change {
+			described_class.is_database?( path.to_s )
+		}.from( false ).to( true )
+	end
+
+
+	it "can tell whether a Pathname looks like a path to a Kuzu database" do
+		path = spec_tmpdir + 'spec_db'
+
+		expect {
+			described_class.database( path )
+		}.to change {
+			described_class.is_database?( path )
+		}.from( false ).to( true )
+	end
+
 end
