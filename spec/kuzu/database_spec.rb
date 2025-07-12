@@ -8,11 +8,17 @@ require 'kuzu/database'
 RSpec.describe( Kuzu::Database ) do
 
 	let( :spec_tmpdir ) do
-		tmpfile_pathname()
+		path = tmpfile_pathname()
+		path.mkpath
+		return path
 	end
 
 	let( :db_path ) { spec_tmpdir + 'spec_db' }
 
+
+	after( :each ) do
+		GC.start
+	end
 
 	it "can be created in-memory" do
 		instance = described_class.new( '' )

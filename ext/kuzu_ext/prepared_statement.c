@@ -43,7 +43,7 @@ rkuzu_get_prepared_statement( VALUE prepared_statement_obj )
  * Allocation function
  */
 static rkuzu_prepared_statement *
-rkuzu_prepared_statement_alloc()
+rkuzu_prepared_statement_alloc( void )
 {
 	rkuzu_prepared_statement *ptr = ALLOC( rkuzu_prepared_statement );
 

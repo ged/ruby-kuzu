@@ -7,7 +7,9 @@ require 'kuzu'
 RSpec.describe( Kuzu ) do
 
 	let( :spec_tmpdir ) do
-		tmpfile_pathname()
+		path = tmpfile_pathname()
+		path.mkpath
+		return path
 	end
 
 
@@ -49,7 +51,11 @@ RSpec.describe( Kuzu ) do
 		result = described_class.database( filename )
 
 		expect( result ).to be_a( Kuzu::Database )
-		expect( filename ).to be_a_directory
+		if Kuzu.storage_version < 38
+			expect( filename ).to be_a_directory
+		else
+			expect( filename ).to be_a_file
+		end
 	end
 
 

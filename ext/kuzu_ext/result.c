@@ -408,7 +408,7 @@ rkuzu_result_get_column_names( VALUE self )
 
 	for ( uint64_t i = 0 ; i < col_count ; i++ ) {
 		if ( kuzu_query_result_get_column_name(&result->result, i, &name) != KuzuSuccess ) {
-			rb_raise( rkuzu_eError, "couldn't fetch name of column %llu", i );
+			rb_raise( rkuzu_eError, "couldn't fetch name of column %lu", i );
 		}
 		rb_ary_push( rval, rb_str_new2(name) );
 	}

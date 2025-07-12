@@ -56,13 +56,19 @@ module Kuzu
 	end
 
 
-	### Returns +true+ if the specified +pathname+ appears to be a valid Kuzu database.
+	### Returns +true+ if the specified +pathname+ appears to be a valid Kuzu database
+	### for the current version of the storage format.
 	def self::is_database?( pathname )
 		pathname = Pathname( pathname )
-		return false unless pathname.directory?
-
-		testfile = pathname / KUZU_CATALOG_FILENAME
-		return testfile.exist?
+		if Kuzu.storage_version < 38
+			return false unless pathname.directory?
+			testfile = pathname / KUZU_CATALOG_FILENAME
+			return testfile.exist?
+		else
+			return false unless pathname.file?
+			magic = pathname.read( 5 )
+			return magic[0, 4] == 'KUZU' && magic[4, 1].ord == Kuzu.storage_version
+		end
 	end
 	singleton_class.alias_method( :is_kuzu_database?, :is_database? )
 
@@ -89,4 +95,3 @@ module Kuzu
 	end
 
 end # module Kuzu
-
