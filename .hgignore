@@ -12,3 +12,4 @@ spec/\.status
 \.tsv$
 imdb/
 history\.txt$
+.obsidian/
