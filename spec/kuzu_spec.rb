@@ -51,7 +51,7 @@ RSpec.describe( Kuzu ) do
 		result = described_class.database( filename )
 
 		expect( result ).to be_a( Kuzu::Database )
-		if Kuzu.storage_version < 38
+		if Kuzu.storage_version <= 38
 			expect( filename ).to be_a_directory
 		else
 			expect( filename ).to be_a_file

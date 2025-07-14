@@ -60,7 +60,7 @@ module Kuzu
 	### for the current version of the storage format.
 	def self::is_database?( pathname )
 		pathname = Pathname( pathname )
-		if Kuzu.storage_version < 38
+		if Kuzu.storage_version <= 38
 			return false unless pathname.directory?
 			testfile = pathname / KUZU_CATALOG_FILENAME
 			return testfile.exist?
