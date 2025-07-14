@@ -89,6 +89,22 @@ RSpec.describe( Kuzu::Result ) do
 		end
 
 
+		it "handles a #next after it finishes iteration over the current set" do
+			setup_demo_db()
+
+			result = described_class.from_query( connection, <<~END_OF_QUERY )
+				MATCH ( a:User )-[ f:Follows ]->( b:User )
+			    RETURN a.name, b.name, f.since;
+			END_OF_QUERY
+
+			result.tuples # Iterate over all tuples
+
+			expect( result.next ).to be_nil
+
+			result.finish
+		end
+
+
 		it "can fetch individual result tuples via the index operator" do
 			setup_demo_db()
 

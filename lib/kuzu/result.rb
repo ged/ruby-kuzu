@@ -60,7 +60,8 @@ class Kuzu::Result
 
 	### Get the next tuple of the result as a Hash.
 	def next
-		pairs = self.column_names.zip( self.get_next_values )
+		values = self.get_next_values or return nil
+		pairs = self.column_names.zip( values )
 		return Hash[ pairs ]
 	end
 
@@ -110,11 +111,10 @@ class Kuzu::Result
 		if self.finished?
 			details = " (finished)"
 		else
-			details = " success: %p (%d tuples of %d columns): %s" % [
+			details = " success: %p (%d tuples of %d columns)" % [
 				self.success?,
 				self.num_tuples,
 				self.num_columns,
-				self.to_s,
 			]
 		end
 
