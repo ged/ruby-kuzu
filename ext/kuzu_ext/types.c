@@ -165,8 +165,8 @@ rkuzu_convert_date( kuzu_value *value )
 
 	kuzu_date_to_tm( typed_value, &time );
 
-	argv[0] = INT2FIX( time.tm_year );
-	argv[1] = INT2FIX( time.tm_mon );
+	argv[0] = INT2FIX( time.tm_year + 1900 );
+	argv[1] = INT2FIX( time.tm_mon  + 1 );
 	argv[2] = INT2FIX( time.tm_mday );
 
 	return rb_class_new_instance( 3, argv, rkuzu_rb_cDate );

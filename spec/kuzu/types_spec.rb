@@ -34,6 +34,25 @@ RSpec.describe( "data types" ) do
 	end
 
 
+	it "coverts DATE values to Date objects" do
+		result = connection.query( %{RETURN CAST('2025-07-14', 'DATE') as x;} )
+
+		expect( result ).to be_a( Kuzu::Result )
+		expect( result ).to be_success
+
+		value = result.first
+		expect( value ).to include( 'x' )
+
+		x = value['x']
+		expect( x ).to be_a( Date )
+		expect( x.year ).to eq( 2025 )
+		expect( x.month ).to eq( 7 )
+		expect( x.day ).to eq( 14 )
+
+		result.finish
+	end
+
+
 	it "converts STRUCT values to OpenStructs" do
 		result = connection.query( "RETURN {first: 'Adam', last: 'Smith'} AS record;" )
 
