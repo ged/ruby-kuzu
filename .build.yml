@@ -5,12 +5,12 @@ packages:
   - rubygem-rake
   - kuzu
 sources:
-  - hg+https://hg.sr.ht/~ged/ruby-kuzu
+  - hg+https://hg.sr.ht/~ged/Ruby-Kuzu
 tasks:
   - setup: |
-      cd ruby-kuzu
+      cd Ruby-Kuzu
       gem install --user-install -Ng
   - test: |
       export PATH=$PATH:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin
-      cd ruby-kuzu
+      cd Ruby-Kuzu
       COVERAGE=1 rspec -cfd
