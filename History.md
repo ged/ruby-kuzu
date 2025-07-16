@@ -1,6 +1,23 @@
 # Release History for ruby-kuzu
 
 ---
+
+## v0.2.0 [2025-07-16] Michael Granger <ged@FaerieMUD.org>
+
+Enhancements:
+
+- Add support for the SERIAL type.
+- Add Kuzu.is_database? method
+- Flesh out documentation
+
+Bugfixes:
+
+- Fixups for Linux and Kuzu 0.11
+- Fix storage version check (0.11+)
+- Fix a bug in Result#next
+- Fix Date type conversion
+
+
 ## v0.1.0 [2025-06-17] Michael Granger <ged@FaerieMUD.org>
 
 Enhancements:

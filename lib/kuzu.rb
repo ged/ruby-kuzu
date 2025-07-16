@@ -12,7 +12,7 @@ module Kuzu
 
 
 	# Library version
-	VERSION = '0.1.0'
+	VERSION = '0.2.0'
 
 	# Name of the file to look for when testing a path to see if it's a Kuzu database.
 	KUZU_CATALOG_FILENAME = 'data.kz'
