@@ -6,6 +6,47 @@ require 'kuzu' unless defined?( Kuzu )
 
 
 # Kùzu query result class
+#
+# These objects contain one result set from either a Kuzu::Connection#query call
+# or Kuzu::PreparedStatement#execute. If there are multiple result sets, you can
+# fetch the next one by calling Kuzu::Result#next_set. You can use #has_next_set?
+# to test for a following set.
+#
+# Tuple values are converted to corresponding Ruby objects:
+#
+# | Kuzu Type       | Ruby Type                                       |
+# | --------------- | ----------------------------------------------- |
+# | +INT8+          | +Integer+                                       |
+# | +INT16+         | +Integer+                                       |
+# | +INT32+         | +Integer+                                       |
+# | +INT64+         | +Integer+                                       |
+# | +INT128+        | +Integer+                                       |
+# | +UINT8+         | +Integer+                                       |
+# | +UINT16+        | +Integer+                                       |
+# | +UINT32+        | +Integer+                                       |
+# | +UINT64+        | +Integer+                                       |
+# | +FLOAT+         | +Float+                                         |
+# | +DOUBLE+        | +Float+                                         |
+# | +DECIMAL+       | +Float+                                         |
+# | +BOOLEAN+       | +TrueClass+ or +FalseClass+                     |
+# | +UUID+          | +String+ (UTF-8 encoding)                       |
+# | +STRING+        | +String+ (UTF-8 encoding)                       |
+# | +NULL+          | +NilClass+                                      |
+# | +DATE+          | +Date+                                          |
+# | +TIMESTAMP+     | +Time+                                          |
+# | +INTERVAL+      | +Float+ (interval in seconds)                   |
+# | +STRUCT+        | +OpenStruct+ via the +ostruct+ standard library |
+# | +MAP+           | +Hash+                                          |
+# | +UNION+         | (not yet handled)                               |
+# | +BLOB+          | +String+ (+ASCII_8BIT+ encoding)                |
+# | +SERIAL+        | +Integer+                                       |
+# | +NODE+          | Kuzu::Node                                      |
+# | +REL+           | Kuzu::Rel                                       |
+# | +RECURSIVE_REL+ | Kuzu::RecursiveRel                              |
+# | +LIST+          | +Array+                                         |
+# | +ARRAY+         | +Array+                                         |
+#
+#
 class Kuzu::Result
 	extend Loggability
 
