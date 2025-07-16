@@ -17,6 +17,8 @@ docs
 
 A Ruby binding for the Kùzu embedded graph database.
 
+[![builds.sr.ht status](https://builds.sr.ht/~ged/Ruby-Kuzu.svg)](https://builds.sr.ht/~ged/Ruby-Kuzu?)
+
 
 ### Creating A Database and Connecting To It
 
